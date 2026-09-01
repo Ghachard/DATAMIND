@@ -30,7 +30,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
     {'id': 'bar', 'name': 'Barres', 'icon': Icons.bar_chart, 'types': ['simple', 'grouped'], 'natures': ['discrete', 'continuous']},
     {'id': 'pie', 'name': 'Camembert', 'icon': Icons.pie_chart, 'types': ['simple', 'grouped'], 'natures': ['discrete', 'continuous']},
     {'id': 'scatter', 'name': 'Nuage de points', 'icon': Icons.scatter_plot, 'types': ['bivariate'], 'natures': ['discrete', 'continuous']},
-    {'id': 'histogram_classes', 'name': 'Histogramme jointif', 'icon': Icons.chart_bar, 'types': ['classes'], 'natures': ['continuous']},
+    {'id': 'histogram_classes', 'name': 'Histogramme jointif', 'icon': Icons.equalizer, 'types': ['classes'], 'natures': ['continuous']},
     {'id': 'ogive', 'name': 'Ogive', 'icon': Icons.trending_up, 'types': ['classes'], 'natures': ['continuous']},
     {'id': 'polygone', 'name': 'Polygone', 'icon': Icons.show_chart, 'types': ['grouped'], 'natures': ['discrete']},
     {'id': 'normal_curve', 'name': 'Courbe normale', 'icon': Icons.waves, 'types': ['simple'], 'natures': ['continuous']},

@@ -156,29 +156,8 @@ class _ScatterChartWidgetState extends State<ScatterChartWidget> {
                   ...chartPoints.map((p) => ScatterSpot(
                         p.x,
                         p.y,
-                        radius: 6,
                       )),
                 ],
-                lineBarsData: regression != null
-                    ? [
-                        LineChartBarData(
-                          spots: [
-                            FlSpot(
-                              regression['x_min'] as double,
-                              (regression['y_start'] as num).toDouble(),
-                            ),
-                            FlSpot(
-                              regression['x_max'] as double,
-                              (regression['y_end'] as num).toDouble(),
-                            ),
-                          ],
-                          isCurved: false,
-                          color: AppColors.error,
-                          barWidth: 2,
-                          dotData: const FlDotData(show: false),
-                        ),
-                      ]
-                    : [],
               ),
             ),
           ),

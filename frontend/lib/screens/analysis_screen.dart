@@ -306,10 +306,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             ),
           ],
         ],
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
