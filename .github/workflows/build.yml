@@ -1,0 +1,37 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: cd frontend && flutter pub get
+
+      - name: Build APK
+        run: cd frontend && flutter build apk --no-tree-shake-icons --dart-define=API_BASE_URL=https://datamind-api-yl0t.onrender.com
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: datamind-apk
+          path: frontend/build/app/outputs/flutter-apk/app-release.apk
