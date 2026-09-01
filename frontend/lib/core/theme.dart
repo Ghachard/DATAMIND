@@ -56,7 +56,7 @@ class AppTheme {
         selectedLabelTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         unselectedLabelTextStyle: TextStyle(color: Color(0xFF666666)),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardDark,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -126,7 +126,7 @@ class AppTheme {
         selectedLabelTextStyle: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
         unselectedLabelTextStyle: TextStyle(color: Color(0xFF999999)),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardLight,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

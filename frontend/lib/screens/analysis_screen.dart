@@ -113,8 +113,9 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                           : _buildEmpty(),
             ),
           ],
-        ),
+        ],
       ),
+    ),
     ),
   ],
 );
