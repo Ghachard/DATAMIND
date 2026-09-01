@@ -155,9 +155,9 @@ class _BoxPlotPainter extends CustomPainter {
   });
 
   @override
-  void paint(Canvas size, Canvas canvas) {
-    final w = size.size.width;
-    final h = size.size.height;
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
     final plotRange = plotMax - plotMin;
 
     double toX(double value) => ((value - plotMin) / plotRange) * w;

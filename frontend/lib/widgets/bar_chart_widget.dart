@@ -87,7 +87,7 @@ class _BarChartWidgetState extends State<BarChartWidget> {
                         final idx = value.toInt();
                         if (idx >= 0 && idx < labels.length) {
                           return SideTitleWidget(
-                            meta: meta,
+                            axisSide: meta.axisSide,
                             child: Text(
                               labels[idx],
                               style: TextStyle(

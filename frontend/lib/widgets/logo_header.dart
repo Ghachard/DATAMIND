@@ -52,8 +52,8 @@ class LogoHeader extends StatelessWidget {
             label: 'DataMind',
             isDark: isDark,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -82,8 +82,7 @@ class LogoHeader extends StatelessWidget {
                 color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
-              ),
-            ],
+        ],
           ),
           child: Image.asset(
             path,

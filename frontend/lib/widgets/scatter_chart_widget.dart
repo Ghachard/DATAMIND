@@ -156,17 +156,9 @@ class _ScatterChartWidgetState extends State<ScatterChartWidget> {
                   ...chartPoints.map((p) => ScatterSpot(
                         p.x,
                         p.y,
-                        color: AppColors.accent,
                         radius: 6,
                       )),
                 ],
-                extraLinesData: regression != null
-                    ? ExtraLinesData(
-                        horizontalLines: [],
-                        verticalLines: [],
-                        extraLinesOnTop: true,
-                      )
-                    : null,
                 lineBarsData: regression != null
                     ? [
                         LineChartBarData(
