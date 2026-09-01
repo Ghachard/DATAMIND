@@ -130,9 +130,9 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Lois de probabilité', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Row(
+                const SizedBox(height: 16),
+                Expanded(
+                  child: Row(
               children: [
                 SizedBox(
                   width: 180,
@@ -292,15 +292,18 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
                           ),
                         ),
                       ],
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
-    );
+    ),
+  ],
+);
   }
 
   Widget _resultChip(String label, dynamic value) {
@@ -317,11 +320,8 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
         children: [
           Text(label, style: TextStyle(fontSize: 11, color: Color(0xFF999999))),
           Text(display, style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w700)),
-              ],
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

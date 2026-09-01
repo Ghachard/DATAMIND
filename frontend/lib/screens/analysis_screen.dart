@@ -103,19 +103,21 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     ),
             ),
             const SizedBox(height: 16),
+            Expanded(
+              child: result.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : result.error != null
+                      ? _buildError(result.error!)
+                      : result.hasResult
+                          ? _buildResults(result)
+                          : _buildEmpty(),
+            ),
           ],
-          Expanded(
-            child: result.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : result.error != null
-                    ? _buildError(result.error!)
-                    : result.hasResult
-                        ? _buildResults(result)
-                        : _buildEmpty(),
-          ),
-        ],
+        ),
       ),
-    );
+    ),
+  ],
+);
   }
 
   Widget _buildEmpty() {
