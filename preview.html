@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataMind — Apercu interactif</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0A1628; --surface: #0F1F3D; --surface-2: #132744;
+            --primary: #1A6FD4; --accent: #00C8FF; --success: #00E676;
+            --warning: #FFB300; --error: #FF5252; --secondary: #AA00FF;
+            --text: #E8E8E8; --text-sec: #8899AA; --border: #1A3A5C;
+            --hover: rgba(26,111,212,0.12);
+        }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
+        .scaffold { display:flex; height:100vh; }
+        .rail { width:72px; background:var(--surface); display:flex; flex-direction:column; align-items:center; padding:12px 0; border-right:1px solid var(--border); }
+        .rail-logo { width:40px; height:40px; background:var(--primary); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:4px; }
+        .rail-logo span { font-family:'Material Symbols Outlined'; font-size:22px; color:white; font-variation-settings:'FILL' 1,'wght' 600; }
+        .rail-brand { font-size:10px; font-weight:700; color:var(--primary); letter-spacing:0.5px; margin-bottom:20px; }
+        .rail-items { display:flex; flex-direction:column; gap:2px; flex:1; }
+        .rail-item { width:56px; padding:8px 0 6px; display:flex; flex-direction:column; align-items:center; gap:2px; border-radius:16px; cursor:pointer; border:none; background:none; color:var(--text-sec); font-family:'Inter',sans-serif; }
+        .rail-item:hover { background:var(--hover); }
+        .rail-item.active { background:rgba(26,111,212,0.18); color:var(--accent); }
+        .rail-item .material-symbols-outlined { font-size:24px; }
+        .rail-item.active .material-symbols-outlined { font-variation-settings:'FILL' 1,'wght' 500; }
+        .rail-item-label { font-size:11px; font-weight:500; }
+        .rail-bottom { display:flex; flex-direction:column; gap:2px; }
+        .rail-icon-btn { width:40px; height:40px; border-radius:20px; border:none; background:none; color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .rail-icon-btn:hover { background:var(--hover); }
+        .rail-icon-btn .material-symbols-outlined { font-size:22px; }
+        .main { flex:1; display:flex; flex-direction:column; min-width:0; }
+        .appbar { height:56px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; }
+        .appbar-title { font-size:18px; font-weight:600; }
+        .appbar-spacer { flex:1; }
+        .appbar-btn { width:36px; height:36px; border-radius:18px; border:none; background:none; color:var(--text-sec); cursor:pointer; display:flex; align-items:center; justify-content:center; margin-left:4px; }
+        .appbar-btn:hover { background:var(--hover); }
+        .body { flex:1; padding:20px 24px; overflow-y:auto; }
+        .body::-webkit-scrollbar { width:6px; }
+        .body::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+        .segmented { display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:20px; }
+        .seg-btn { flex:1; padding:10px 0; background:none; border:none; border-right:1px solid var(--border); color:var(--text-sec); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; cursor:pointer; }
+        .seg-btn:last-child { border-right:none; }
+        .seg-btn:hover { background:var(--hover); }
+        .seg-btn.active { background:var(--primary); color:white; }
+        .field-row { display:flex; gap:12px; margin-bottom:16px; }
+        .field { flex:1; }
+        .field-label { display:block; font-size:12px; color:var(--text-sec); margin-bottom:6px; }
+        .field-input { width:100%; height:40px; padding:0 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Inter',sans-serif; font-size:14px; outline:none; }
+        .field-input:focus { border-color:var(--primary); }
+        .field-input::placeholder { color:#445566; }
+        .hint-text { font-size:11px; color:#556677; margin-bottom:6px; font-family:'SF Mono','Fira Code',monospace; }
+        textarea.field-input { height:180px; padding:12px; resize:vertical; font-family:'SF Mono','Fira Code',monospace; font-size:13px; line-height:1.6; }
+        .preview-bar { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--surface); border-radius:10px; margin-top:12px; }
+        .badge { padding:4px 10px; background:rgba(26,111,212,0.12); border-radius:6px; font-size:12px; font-weight:600; color:var(--primary); }
+        .spacer { flex:1; }
+        .btn { padding:8px 20px; background:var(--primary); border:none; border-radius:8px; color:white; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; }
+        .btn:hover { opacity:0.88; }
+        .btn .material-symbols-outlined { font-size:18px; }
+        .btn:disabled { opacity:0.4; cursor:not-allowed; }
+        .card { background:var(--surface); border-radius:12px; padding:20px; margin-bottom:16px; }
+        .card-header { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+        .card-header .material-symbols-outlined { font-size:20px; color:var(--accent); }
+        .card-title { font-size:15px; font-weight:600; }
+        .stat-grid { display:flex; flex-wrap:wrap; gap:8px; }
+        .stat-cell { padding:10px 14px; background:rgba(26,111,212,0.08); border-radius:8px; min-width:100px; }
+        .stat-cell-label { font-size:11px; color:var(--text-sec); margin-bottom:2px; }
+        .stat-cell-value { font-size:15px; font-weight:700; color:var(--primary); font-variant-numeric:tabular-nums; }
+        .interp-box { background:rgba(26,111,212,0.06); border-left:3px solid var(--primary); border-radius:0 8px 8px 0; padding:16px 18px; font-size:13px; line-height:1.75; color:var(--text-sec); }
+        .interp-box strong { color:var(--text); font-weight:600; }
+        .screen { display:none; }
+        .screen.active { display:block; }
+        .charts-row { display:flex; gap:16px; height:calc(100vh - 130px); }
+        .chart-nav { width:200px; display:flex; flex-direction:column; gap:4px; overflow-y:auto; }
+        .chart-nav-item { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:10px; cursor:pointer; border:none; background:none; color:var(--text-sec); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; text-align:left; }
+        .chart-nav-item:hover { background:var(--hover); }
+        .chart-nav-item.active { background:var(--primary); color:white; }
+        .chart-nav-item.disabled { opacity:0.3; pointer-events:none; }
+        .chart-nav-item .material-symbols-outlined { font-size:20px; }
+        .chart-canvas { flex:1; background:var(--surface); border-radius:12px; display:flex; align-items:center; justify-content:center; position:relative; }
+        .chart-canvas canvas { max-width:100%; max-height:100%; cursor:crosshair; }
+        .chart-tooltip { position:absolute; padding:8px 12px; background:rgba(15,31,61,0.95); border:1px solid var(--accent); border-radius:8px; font-size:12px; color:var(--text); pointer-events:none; display:none; z-index:10; white-space:nowrap; }
+        .prob-row { display:flex; gap:16px; height:calc(100vh - 130px); }
+        .law-nav { width:160px; display:flex; flex-direction:column; gap:4px; }
+        .law-nav-item { padding:10px 14px; border-radius:10px; cursor:pointer; border:none; background:none; color:var(--text-sec); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; text-align:left; }
+        .law-nav-item:hover { background:var(--hover); }
+        .law-nav-item.active { background:var(--secondary); color:white; }
+        .prob-content { flex:1; display:flex; flex-direction:column; gap:16px; overflow-y:auto; }
+        .chip-row { display:flex; gap:8px; flex-wrap:wrap; }
+        .chip { padding:10px 14px; background:rgba(170,0,255,0.08); border-radius:8px; }
+        .chip-label { font-size:10px; color:var(--text-sec); text-transform:uppercase; letter-spacing:0.5px; }
+        .chip-value { font-size:16px; font-weight:700; color:var(--secondary); font-variant-numeric:tabular-nums; }
+        .lessons-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+        .lesson-card { background:var(--surface); border-radius:12px; padding:16px; display:flex; gap:14px; align-items:center; cursor:pointer; border:1px solid transparent; }
+        .lesson-card:hover { border-color:var(--primary); background:var(--surface-2); }
+        .lesson-num { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:white; flex-shrink:0; }
+        .lesson-title { font-size:14px; font-weight:600; }
+        .lesson-sub { font-size:12px; color:var(--text-sec); margin-top:2px; line-height:1.4; }
+        .lesson-detail { display:none; }
+        .lesson-detail.active { display:block; }
+        .lesson-detail .back-btn { cursor:pointer; color:var(--accent); font-size:13px; margin-bottom:16px; display:flex; align-items:center; gap:4px; }
+        .lesson-detail h2 { font-size:20px; margin-bottom:12px; color:var(--accent); }
+        .lesson-detail p { font-size:13px; line-height:1.75; color:var(--text-sec); margin-bottom:12px; }
+        .lesson-detail strong { color:var(--text); }
+        .toggle-row { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+        .toggle-row:last-child { border-bottom:none; }
+        .toggle { width:18px; height:18px; accent-color:var(--primary); }
+        .toggle-label { font-size:14px; font-weight:500; }
+        .toggle-desc { font-size:12px; color:var(--text-sec); margin-top:2px; }
+        .info-row { display:flex; gap:24px; font-size:13px; }
+        .info-row span { color:var(--text-sec); }
+        .info-row strong { font-weight:600; }
+        .normality-badge { padding:8px 14px; border-radius:8px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; }
+        .normality-badge.normal { background:rgba(0,230,118,0.1); border:1px solid var(--success); color:var(--success); }
+        .normality-badge.non-normal { background:rgba(255,82,82,0.1); border:1px solid var(--error); color:var(--error); }
+        .empty-msg { color:var(--text-sec); font-size:13px; text-align:center; padding:40px; }
+        .history-item { display:inline-flex; flex-direction:column; padding:10px 14px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-right:8px; cursor:pointer; min-width:140px; }
+        .history-item:hover { border-color:var(--primary); }
+        .history-item .hi-type { font-size:10px; color:var(--accent); text-transform:uppercase; }
+        .history-item .hi-name { font-size:12px; font-weight:600; margin:2px 0; }
+        .history-item .hi-date { font-size:10px; color:var(--text-sec); }
+        .history-bar { display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; padding:4px 0; }
+        .logo-header { display:flex; align-items:center; gap:20px; padding:14px 24px; background:var(--surface); border-bottom:1px solid var(--border); }
+        .logo-item { display:flex; align-items:center; gap:10px; }
+        .logo-box { width:52px; height:52px; padding:6px; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+        .logo-box img { max-width:100%; max-height:100%; object-fit:contain; }
+        .logo-fallback { width:100%; height:100%; align-items:center; justify-content:center; }
+        .logo-fallback .material-symbols-outlined { font-size:28px; color:var(--primary); }
+        .logo-text { line-height:1.2; }
+        .logo-name { font-size:14px; font-weight:700; color:var(--text); letter-spacing:0.5px; }
+        .logo-sub { font-size:9px; color:var(--text-sec); }
+        .logo-divider { width:1px; height:48px; background:linear-gradient(to bottom, transparent, var(--border), transparent); }
+        .logo-spacer { flex:1; }
+        .logo-badge { display:flex; align-items:center; gap:6px; padding:6px 12px; background:rgba(26,111,212,0.1); border:1px solid rgba(26,111,212,0.3); border-radius:8px; font-size:11px; font-weight:600; color:var(--primary); }
+        .logo-dot { width:8px; height:8px; background:var(--success); border-radius:50%; }
+    </style>
+</head>
+<body>
+<div class="scaffold">
+    <nav class="rail">
+        <div class="rail-logo"><span class="material-symbols-outlined">analytics</span></div>
+        <div class="rail-brand">DM</div>
+        <div class="rail-items">
+            <button class="rail-item active" onclick="show('input',this)"><span class="material-symbols-outlined">table_chart</span><span class="rail-item-label">Saisie</span></button>
+            <button class="rail-item" onclick="show('analysis',this)"><span class="material-symbols-outlined">bar_chart</span><span class="rail-item-label">Analyse</span></button>
+            <button class="rail-item" onclick="show('charts',this)"><span class="material-symbols-outlined">show_chart</span><span class="rail-item-label">Graphiques</span></button>
+            <button class="rail-item" onclick="show('probability',this)"><span class="material-symbols-outlined">functions</span><span class="rail-item-label">Probabilites</span></button>
+            <button class="rail-item" onclick="show('lessons',this)"><span class="material-symbols-outlined">menu_book</span><span class="rail-item-label">Lecons</span></button>
+            <button class="rail-item" onclick="show('export',this)"><span class="material-symbols-outlined">picture_as_pdf</span><span class="rail-item-label">Export</span></button>
+        </div>
+        <div class="rail-bottom">
+            <button class="rail-icon-btn" title="Theme" onclick="toggleTheme()"><span class="material-symbols-outlined" id="theme-icon">dark_mode</span></button>
+            <button class="rail-icon-btn" title="Langue" onclick="toggleLang()"><span class="material-symbols-outlined">translate</span></button>
+        </div>
+    </nav>
+
+    <div class="main">
+        <div class="logo-header">
+            <div class="logo-item">
+                <div class="logo-box">
+                    <img src="assets/images/ispm_logo.png" alt="ISPM" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                    <div class="logo-fallback" style="display:none"><span class="material-symbols-outlined">school</span></div>
+                </div>
+                <div class="logo-text">
+                    <div class="logo-name">ISPM</div>
+                    <div class="logo-sub">Institut Supérieur<br>Polytechnique</div>
+                </div>
+            </div>
+            <div class="logo-divider"></div>
+            <div class="logo-item">
+                <div class="logo-box">
+                    <img src="assets/images/datamind_logo.png" alt="DataMind" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                    <div class="logo-fallback" style="display:none"><span class="material-symbols-outlined">analytics</span></div>
+                </div>
+                <div class="logo-text">
+                    <div class="logo-name">DataMind</div>
+                    <div class="logo-sub">Statistique<br>Pédagogique</div>
+                </div>
+            </div>
+            <div class="logo-spacer"></div>
+        </div>
+        <div class="appbar">
+            <div class="appbar-title" id="appbar-title">Saisie des donnees</div>
+            <div class="appbar-spacer"></div>
+            <button class="appbar-btn" title="Rechercher"><span class="material-symbols-outlined">search</span></button>
+            <button class="appbar-btn" title="Plus"><span class="material-symbols-outlined">more_vert</span></button>
+        </div>
+
+        <div class="body">
+            <!-- INPUT -->
+            <div class="screen active" id="s-input">
+                <div class="segmented" id="type-seg">
+                    <button class="seg-btn active" onclick="setType('simple',this)">Simple</button>
+                    <button class="seg-btn" onclick="setType('grouped',this)">Groupée</button>
+                    <button class="seg-btn" onclick="setType('classes',this)">Classes</button>
+                    <button class="seg-btn" onclick="setType('bivariate',this)">Bivariée</button>
+                </div>
+                <div class="segmented" id="nature-seg">
+                    <button class="seg-btn" onclick="setDataNature('discrete',this)">Discret</button>
+                    <button class="seg-btn active" onclick="setDataNature('continuous',this)">Continu</button>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label class="field-label">Nom de la variable</label>
+                        <input class="field-input" type="text" id="var-name" value="Notes examen">
+                    </div>
+                </div>
+                <div class="hint-text" id="input-hint">12, 15, 18, 22, 25, 28, 30 — une valeur par ligne ou séparées par virgule</div>
+                <textarea class="field-input" id="data-input" oninput="parsePreview()">12
+15
+18
+22
+25
+28
+30</textarea>
+                <div class="preview-bar">
+                    <span class="badge" id="badge-n">N : 7</span>
+                    <span class="badge" id="badge-min">Min : 12</span>
+                    <span class="badge" id="badge-max">Max : 30</span>
+                    <div class="spacer"></div>
+                    <button class="btn" id="calc-btn" onclick="calculate()"><span class="material-symbols-outlined">calculate</span>Calculer</button>
+                </div>
+            </div>
+
+            <!-- ANALYSIS -->
+            <div class="screen" id="s-analysis">
+                <div id="history-bar" class="history-bar"></div>
+                <div id="analysis-empty" class="empty-msg">
+                    <span class="material-symbols-outlined" style="font-size:48px;color:#666">analytics_outlined</span><br><br>
+                    Aucun résultat — saisissez des données puis cliquez Calculer
+                </div>
+                <div id="analysis-results" style="display:none"></div>
+            </div>
+
+            <!-- CHARTS -->
+            <div class="screen" id="s-charts">
+                <div class="charts-row">
+                    <div class="chart-nav" id="chart-nav"></div>
+                    <div class="chart-canvas" id="chart-canvas">
+                        <canvas id="main-chart" width="600" height="400" style="display:none"></canvas>
+                        <div id="chart-tooltip" class="chart-tooltip"></div>
+                        <div id="chart-empty" class="empty-msg">
+                            <span class="material-symbols-outlined" style="font-size:48px;color:#666">show_chart</span><br><br>
+                            Sélectionnez un type de graphique
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROBABILITY -->
+            <div class="screen" id="s-probability">
+                <div class="prob-row">
+                    <div class="law-nav" id="law-nav"></div>
+                    <div class="prob-content" id="prob-content"></div>
+                </div>
+            </div>
+
+            <!-- LESSONS -->
+            <div class="screen" id="s-lessons">
+                <div id="lessons-list" class="lessons-grid"></div>
+                <div id="lesson-detail" class="lesson-detail"></div>
+            </div>
+
+            <!-- EXPORT -->
+            <div class="screen" id="s-export">
+                <div class="card">
+                    <div class="card-header"><span class="material-symbols-outlined">tune</span><div class="card-title">Sections du rapport</div></div>
+                    <label class="toggle-row"><input type="checkbox" checked class="toggle" id="exp-stats"><div><div class="toggle-label">Statistiques descriptives</div><div class="toggle-desc">Moyenne, médiane, variance, quartiles...</div></div></label>
+                    <label class="toggle-row"><input type="checkbox" checked class="toggle" id="exp-charts"><div><div class="toggle-label">Graphiques</div><div class="toggle-desc">Histogramme, boxplot, nuage de points...</div></div></label>
+                    <label class="toggle-row"><input type="checkbox" checked class="toggle" id="exp-interp"><div><div class="toggle-label">Interprétation</div><div class="toggle-desc">Texte pédagogique automatique</div></div></label>
+                    <label class="toggle-row"><input type="checkbox" class="toggle" id="exp-normality"><div><div class="toggle-label">Test de normalité</div><div class="toggle-desc">Shapiro-Wilk, interprétation</div></div></label>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="material-symbols-outlined">info</span><div class="card-title">Données actuelles</div></div>
+                    <div class="info-row" id="export-info">
+                        <div><span>Type : </span><strong id="exp-type">simple</strong></div>
+                        <div><span>Nature : </span><strong id="exp-nature">Continu</strong></div>
+                        <div><span>Variable : </span><strong id="exp-var">Notes examen</strong></div>
+                        <div><span>Points : </span><strong id="exp-n">7</strong></div>
+                    </div>
+                </div>
+                <button class="btn" style="width:100%;justify-content:center;padding:14px;font-size:15px;" onclick="alert('PDF simulé généré !')">
+                    <span class="material-symbols-outlined">picture_as_pdf</span>Exporter en PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ─── STATE ───
+let dataType = 'simple';
+let dataNature = 'continuous';
+let parsedValues = [];
+let parsedFreqs = [];
+let parsedLower = [];
+let parsedUpper = [];
+let currentStats = null;
+let history = [];
+let lang = 'fr';
+
+// ─── NAVIGATION ───
+const titles = { fr: {input:'Saisie des données',analysis:'Analyse statistique',charts:'Visualisation',probability:'Lois de probabilité',lessons:'Leçons',export:'Export PDF'},
+                 en: {input:'Data input',analysis:'Statistical analysis',charts:'Visualization',probability:'Probability laws',lessons:'Lessons',export:'PDF export'} };
+
+function show(id, el) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.rail-item').forEach(r => r.classList.remove('active'));
+    document.getElementById('s-' + id).classList.add('active');
+    document.getElementById('appbar-title').textContent = titles[lang][id];
+    if (el) el.classList.add('active');
+    if (id === 'charts') renderChartNav();
+    if (id === 'probability') renderLaws();
+    if (id === 'lessons') renderLessons();
+    if (id === 'analysis') renderAnalysis();
+    if (id === 'export') updateExportInfo();
+}
+
+function toggleTheme() {
+    const r = document.documentElement;
+    const c = r.style;
+    if (getComputedStyle(r).getPropertyValue('--bg').trim() === '#0A1628') {
+        c.setProperty('--bg','#F8F9FA'); c.setProperty('--surface','#FFFFFF'); c.setProperty('--surface-2','#F0F0F0');
+        c.setProperty('--text','#333333'); c.setProperty('--text-sec','#666666'); c.setProperty('--border','#E0E0E0');
+        document.getElementById('theme-icon').textContent = 'light_mode';
+    } else {
+        c.setProperty('--bg','#0A1628'); c.setProperty('--surface','#0F1F3D'); c.setProperty('--surface-2','#132744');
+        c.setProperty('--text','#E8E8E8'); c.setProperty('--text-sec','#8899AA'); c.setProperty('--border','#1A3A5C');
+        document.getElementById('theme-icon').textContent = 'dark_mode';
+    }
+}
+
+function toggleLang() { lang = lang === 'fr' ? 'en' : 'fr'; alert(lang === 'en' ? 'Language: English' : 'Langue: Français'); }
+
+// ─── DATA TYPE ───
+function setType(type, el) {
+    dataType = type;
+    el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    const hints = {
+        simple: '12, 15, 18, 22, 25, 28, 30 — une valeur par ligne ou séparées par virgule',
+        grouped: '12\t5\n15\t8\n18\t12 — valeur TAB effectif',
+        classes: '10\t20\t5\n20\t30\t8 — bas\t haut\t effectif',
+        bivariate: '10\t25\n15\t30 — X TAB Y'
+    };
+    document.getElementById('input-hint').textContent = hints[type];
+    const natureSeg = document.getElementById('nature-seg');
+    if (type === 'classes') {
+        dataNature = 'continuous';
+        natureSeg.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        natureSeg.children[1].classList.add('active');
+        natureSeg.style.opacity = '0.5';
+        natureSeg.style.pointerEvents = 'none';
+        if (!document.getElementById('nature-info')) {
+            const info = document.createElement('div');
+            info.id = 'nature-info';
+            info.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--accent)';
+            info.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">info</span>Les données en classes sont intrinsèquement continues';
+            natureSeg.parentElement.appendChild(info);
+        }
+    } else {
+        natureSeg.style.opacity = '1';
+        natureSeg.style.pointerEvents = 'auto';
+        const info = document.getElementById('nature-info');
+        if (info) info.remove();
+    }
+    parsePreview();
+}
+
+function setDataNature(nature, el) {
+    dataNature = nature;
+    el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    parsePreview();
+}
+
+function parsePreview() {
+    const text = document.getElementById('data-input').value;
+    const lines = text.split('\n').filter(l => l.trim());
+    parsedValues = []; parsedFreqs = []; parsedLower = []; parsedUpper = [];
+    for (const line of lines) {
+        const parts = line.split(/[\t;,]+/).map(s => s.trim()).filter(Boolean);
+        if (dataType === 'simple') {
+            const v = parseFloat(parts[0]); if (!isNaN(v)) parsedValues.push(v);
+        } else if (dataType === 'grouped') {
+            const v = parseFloat(parts[0]), f = parseInt(parts[1]);
+            if (!isNaN(v) && !isNaN(f)) { parsedValues.push(v); parsedFreqs.push(f); }
+        } else if (dataType === 'classes') {
+            const lo = parseFloat(parts[0]), hi = parseFloat(parts[1]), f = parseInt(parts[2]);
+            if (!isNaN(lo) && !isNaN(hi) && !isNaN(f)) { parsedLower.push(lo); parsedUpper.push(hi); parsedFreqs.push(f); }
+        } else if (dataType === 'bivariate') {
+            const x = parseFloat(parts[0]), y = parseFloat(parts[1]);
+            if (!isNaN(x) && !isNaN(y)) { parsedValues.push(x); parsedFreqs.push(y); }
+        }
+    }
+    let n = 0, mn = '-', mx = '-';
+    if (dataType === 'simple' && parsedValues.length) { n = parsedValues.length; mn = Math.min(...parsedValues); mx = Math.max(...parsedValues); }
+    else if (dataType === 'grouped' && parsedValues.length) { n = parsedFreqs.reduce((a,b)=>a+b,0); mn = Math.min(...parsedValues); mx = Math.max(...parsedValues); }
+    else if (dataType === 'classes' && parsedLower.length) { n = parsedFreqs.reduce((a,b)=>a+b,0); mn = Math.min(...parsedLower); mx = Math.max(...parsedUpper); }
+    else if (dataType === 'bivariate' && parsedValues.length) { n = parsedValues.length; mn = Math.min(...parsedValues); mx = Math.max(...parsedValues); }
+    document.getElementById('badge-n').textContent = 'N : ' + n;
+    document.getElementById('badge-min').textContent = 'Min : ' + mn;
+    document.getElementById('badge-max').textContent = 'Max : ' + mx;
+}
+
+// ─── STATS ───
+function mean(a) { return a.reduce((s,v)=>s+v,0)/a.length; }
+function median(a) { const s=[...a].sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; }
+function mode(a) { const f={}; a.forEach(v=>f[v]=(f[v]||0)+1); const mx=Math.max(...Object.values(f)); return +Object.keys(f).find(k=>f[k]===mx); }
+function stddev(a) { const m=mean(a); return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length); }
+function percentile(a,p) { const s=[...a].sort((x,y)=>x-y); const i=(p/100)*(s.length-1); const lo=Math.floor(i); const hi=Math.ceil(i); return s[lo]+(s[hi]-s[lo])*(i-lo); }
+function shapiroWilk(a) {
+    const n = a.length;
+    if (n < 3) return { isNormal: false, p: 0 };
+    const s = [...a].sort((x,y)=>x-y);
+    const m = mean(s);
+    const s2 = s.reduce((acc,v)=>acc+(v-m)**2, 0);
+    if (s2 === 0) return { isNormal: true, p: 1 };
+    let A = 0;
+    for (let i = 0; i < Math.floor(n/2); i++) {
+        const ai = [3.0309,1.8513,1.4426,1.2214,1.0722,0.9575,0.8690,0.7997,0.7429,0.6950,0.6544,0.6191,0.5880,0.5604,0.5355,0.5130,0.4926,0.4740,0.4569,0.4412,0.4267,0.4133,0.4008,0.3891,0.3782,0.3679,0.3582,0.3491,0.3406,0.3325];
+        A += ai[i] * (s[n-1-i] - s[i]);
+    }
+    A /= Math.sqrt(s2);
+    const W = (A * A) / s2;
+    const isNormal = W > 0.9;
+    return { isNormal, p: isNormal ? 0.6 : 0.01, W };
+}
+function skewness(a) { const m=mean(a), sd=stddev(a); if(sd===0) return 0; return a.reduce((s,v)=>s+((v-m)/sd)**3,0)/a.length; }
+function kurtosis(a) { const m=mean(a), sd=stddev(a); if(sd===0) return 0; return a.reduce((s,v)=>s+((v-m)/sd)**4,0)/a.length - 3; }
+
+function calcSimple(a) {
+    const n = a.length, m = mean(a), md = median(a), mo = mode(a);
+    const v = a.reduce((s,x)=>s+(x-m)**2,0)/n, sd = Math.sqrt(v);
+    const cv = m !== 0 ? (sd/m)*100 : 0;
+    const q1 = percentile(a,25), q2 = md, q3 = percentile(a,75), iqr = q3-q1;
+    const sw = shapiroWilk(a);
+    const sk = skewness(a), ku = kurtosis(a);
+    const lower=q1-1.5*iqr, upper=q3+1.5*iqr, outliers=a.filter(x=>x<lower||x>upper);
+    return { n, mean:m, median:md, mode:mo, variance:v, std_dev:sd, cv, range:Math.max(...a)-Math.min(...a),
+             q1, q2, q3, iqr, skewness:sk, kurtosis:ku, min_val:Math.min(...a), max_val:Math.max(...a),
+             sum:a.reduce((s,x)=>s+x,0), sem:sd/Math.sqrt(n), outliers,
+             is_normal:sw.isNormal, normality_p:sw.p, data_type:'simple' };
+}
+
+function calcGrouped(vals, freqs) {
+    const n=freqs.reduce((s,f)=>s+f,0);
+    const m=vals.reduce((s,v,i)=>s+v*freqs[i],0)/n;
+    const v=vals.reduce((s,v,i)=>s+freqs[i]*(v-m)**2,0)/n, sd=Math.sqrt(v);
+    const cv=m!==0?(sd/m)*100:0;
+    const cum=[];let c=0;freqs.forEach(f=>{c+=f;cum.push(c);});
+    function interpQuantile(pos) {
+        let idx=cum.findIndex(c=>c>=pos); if(idx<0)idx=cum.length-1;
+        if(idx>0&&cum[idx-1]<pos&&pos<=cum[idx]&&freqs[idx]>0) {
+            const frac=(pos-cum[idx-1])/freqs[idx];
+            return idx<vals.length-1?vals[idx]+frac*(vals[idx+1]-vals[idx]):vals[idx];
+        }
+        return vals[idx];
+    }
+    const md=interpQuantile(n/2), q1=interpQuantile(n/4), q3=interpQuantile(3*n/4);
+    const modeF=Math.max(...freqs); const modeV=vals[freqs.indexOf(modeF)];
+    return { n, mean:m, median:md, mode:modeV, variance:v, std_dev:sd, cv, range:Math.max(...vals)-Math.min(...vals),
+             q1, q2:md, q3, iqr:q3-q1, sum:vals.reduce((s,v,i)=>s+v*freqs[i],0), data_type:'grouped' };
+}
+
+function calcClasses(lowers, uppers, freqs) {
+    const mids=lowers.map((l,i)=>(l+uppers[i])/2);
+    return calcGrouped(mids, freqs);
+}
+
+function calcBivariate(x, y) {
+    const n=x.length, mx=mean(x), my=mean(y);
+    const cov=x.reduce((s,xi,i)=>s+(xi-mx)*(y[i]-my),0)/n;
+    const sx=stddev(x), sy=stddev(y);
+    const r=sx&&sy?cov/(sx*sy):0;
+    const slope=sx?cov/(sx*sx):0, intercept=my-slope*mx;
+    return { n, mean_x:mx, mean_y:my, std_x:sx, std_y:sy, covariance:cov,
+             pearson_r:r, r_squared:r*r, regression_slope:slope, regression_intercept:intercept, data_type:'bivariate' };
+}
+
+// ─── INTERPRETATION ───
+function interpret(stats) {
+    const parts = [];
+    if (dataNature === 'discrete') {
+        parts.push('Les données sont de nature <strong>discrète</strong> (valeurs entières, dénombrables). Le mode est une mesure de tendance centrale particulièrement pertinente.');
+    } else {
+        parts.push('Les données sont de nature <strong>continue</strong> (toute valeur dans un intervalle). La médiane est souvent préférée au mode.');
+    }
+    if (stats.mean !== undefined) parts.push(`La moyenne est <strong>${stats.mean.toFixed(4)}</strong>.`);
+    if (stats.median !== undefined) parts.push(`La médiane est <strong>${stats.median.toFixed(4)}</strong>.`);
+    if (stats.mode !== undefined && dataNature === 'discrete') parts.push(`Le mode est <strong>${stats.mode.toFixed(4)}</strong> — particulièrement pertinent pour des données discrètes.`);
+    if (stats.cv !== undefined) {
+        const lvl = stats.cv < 15 ? 'faible' : stats.cv < 30 ? 'modéré' : 'élevé';
+        parts.push(`Le CV est <strong>${stats.cv.toFixed(2)}%</strong> — dispersion ${lvl}.`);
+    }
+    if (stats.skewness !== undefined) {
+        const sk = Math.abs(stats.skewness) < 0.5 ? 'symétrique' : stats.skewness > 0 ? 'asymétrique à droite' : 'asymétrique à gauche';
+        parts.push(`L'asymétrie est <strong>${stats.skewness.toFixed(4)}</strong> — ${sk}.`);
+    }
+    if (stats.outliers && stats.outliers.length) parts.push(`<strong>${stats.outliers.length}</strong> valeur(s) aberrante(s) détectée(s).`);
+    else if (stats.outliers) parts.push('Aucune valeur aberrante détectée.');
+    if (stats.is_normal !== undefined) {
+        parts.push(stats.is_normal
+            ? `Test Shapiro-Wilk : p = ${stats.normality_p.toFixed(4)} — <strong style="color:var(--success)">Distribution normale</strong>.`
+            : `Test Shapiro-Wilk : p = ${stats.normality_p.toFixed(4)} — <strong style="color:var(--error)">Distribution non-normale</strong>.`);
+    }
+    if (stats.pearson_r !== undefined) {
+        const str = Math.abs(stats.pearson_r)>=0.8?'très forte':Math.abs(stats.pearson_r)>=0.6?'forte':Math.abs(stats.pearson_r)>=0.4?'modérée':'faible';
+        parts.push(`Corrélation ${str} (r = ${stats.pearson_r.toFixed(4)}). R² = ${(stats.r_squared*100).toFixed(1)}%.`);
+    }
+    return parts.join('<br><br>');
+}
+
+// ─── CALCULATE ───
+function calculate() {
+    parsePreview();
+    if (dataType === 'simple' && parsedValues.length < 2) return alert('Au moins 2 valeurs requises');
+    if (dataType === 'grouped' && parsedValues.length < 1) return alert('Au moins 1 valeur requise');
+    if (dataType === 'classes' && parsedLower.length < 2) return alert('Au moins 2 classes requises');
+    if (dataType === 'bivariate' && parsedValues.length < 2) return alert('Au moins 2 paires requises');
+
+    if (dataType === 'simple') currentStats = calcSimple(parsedValues);
+    else if (dataType === 'grouped') currentStats = calcGrouped(parsedValues, parsedFreqs);
+    else if (dataType === 'classes') currentStats = calcClasses(parsedLower, parsedUpper, parsedFreqs);
+    else currentStats = calcBivariate(parsedValues, parsedFreqs);
+    currentStats.data_nature = dataNature;
+
+    // history LIFO
+    history.unshift({ type: dataType, name: document.getElementById('var-name').value, stats: currentStats, date: new Date() });
+    if (history.length > 5) history.pop();
+
+    renderAnalysis();
+    show('analysis', document.querySelectorAll('.rail-item')[1]);
+}
+
+function renderAnalysis() {
+    const empty = document.getElementById('analysis-empty');
+    const res = document.getElementById('analysis-results');
+    const bar = document.getElementById('history-bar');
+    if (!currentStats) { empty.style.display='block'; res.style.display='none'; bar.innerHTML=''; return; }
+    empty.style.display='none'; res.style.display='block';
+
+    // history bar
+    bar.innerHTML = history.map((h,i) => `<div class="history-item" onclick="loadHistory(${i})"><div class="hi-type">${h.type}</div><div class="hi-name">${h.name}</div><div class="hi-date">${h.date.toLocaleTimeString()}</div></div>`).join('');
+
+    let html = '';
+    // normality badge
+    if (currentStats.is_normal !== undefined) {
+        html += `<div class="normality-badge ${currentStats.is_normal?'normal':'non-normal'}">
+            <span class="material-symbols-outlined" style="font-size:18px">${currentStats.is_normal?'check_circle':'cancel'}</span>
+            ${currentStats.is_normal ? 'Distribution normale' : 'Distribution non-normale'} (p = ${currentStats.normality_p.toFixed(4)})
+        </div>`;
+    }
+    html += '<div class="card"><div class="card-header"><span class="material-symbols-outlined">equalizer</span><div class="card-title">Statistiques descriptives</div></div><div class="stat-grid">';
+    const labels = {n:'Effectif',mean:'Moyenne',median:'Médiane',mode:'Mode',variance:'Variance',std_dev:'Écart-type',cv:'CV (%)',range:'Étendue',q1:'Q1',q2:'Q2',q3:'Q3',iqr:'IQR',skewness:'Asymétrie',kurtosis:'Aplatissement',min_val:'Min',max_val:'Max',sum:'Somme',sem:'Erreur std',
+        mean_x:'Moy X',mean_y:'Moy Y',std_x:'Écart X',std_y:'Écart Y',covariance:'Covariance',pearson_r:'r Pearson',r_squared:'R²',regression_slope:'Pente',regression_intercept:'Ordonnée'};
+    const skip = ['outliers','is_normal','normality_p','data_type','class_midpoints','cumulative_freq','z_scores'];
+    for (const [k,v] of Object.entries(currentStats)) {
+        if (skip.includes(k) || !labels[k]) continue;
+        const val = typeof v === 'number' ? (Math.abs(v) > 1000 || (Math.abs(v) < 0.01 && v !== 0) ? v.toExponential(2) : v.toFixed(4)) : v;
+        html += `<div class="stat-cell"><div class="stat-cell-label">${labels[k]}</div><div class="stat-cell-value">${val}</div></div>`;
+    }
+    html += '</div></div>';
+    if (currentStats.outliers && currentStats.outliers.length) {
+        html += `<div class="card" style="border-left:3px solid var(--error)"><div class="card-header"><span class="material-symbols-outlined" style="color:var(--error)">warning</span><div class="card-title" style="color:var(--error)">Valeurs aberrantes</div></div><p style="font-size:13px;color:var(--text-sec)">${currentStats.outliers.map(v=>v.toFixed(4)).join(', ')}</p></div>`;
+    }
+    html += `<div class="card"><div class="card-header"><span class="material-symbols-outlined">lightbulb</span><div class="card-title">Interprétation</div></div><div class="interp-box">${interpret(currentStats)}</div></div>`;
+    res.innerHTML = html;
+}
+
+function loadHistory(i) {
+    currentStats = history[i].stats;
+    document.getElementById('var-name').value = history[i].name;
+    renderAnalysis();
+}
+
+// ─── CHARTS ───
+let chartTooltipData = null;
+const tooltip = document.getElementById('chart-tooltip');
+
+function showTooltip(evt, text) {
+    const rect = evt.target.getBoundingClientRect();
+    const canvasRect = document.getElementById('chart-canvas').getBoundingClientRect();
+    tooltip.textContent = text;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (evt.clientX - canvasRect.left + 12) + 'px';
+    tooltip.style.top = (evt.clientY - canvasRect.top - 30) + 'px';
+}
+
+function hideTooltip() { tooltip.style.display = 'none'; }
+
+document.getElementById('main-chart').addEventListener('click', function(evt) {
+    if (!chartTooltipData) return;
+    const rect = this.getBoundingClientRect();
+    const mx = evt.clientX - rect.left;
+    const my = evt.clientY - rect.top;
+    const margin = {t:40,r:30,b:50,l:60};
+    const W = this.width, H = this.height;
+    const pw = W-margin.l-margin.r, ph = H-margin.t-margin.b;
+
+    const d = chartTooltipData;
+    if (d.type === 'histogram') {
+        const arr = d.values;
+        const nBins = Math.min(20, Math.max(5, Math.ceil(Math.sqrt(arr.length))));
+        const mn = Math.min(...arr), mx2 = Math.max(...arr);
+        const binW = (mx2-mn)/nBins;
+        if (mx >= margin.l && mx <= W-margin.r && my >= margin.t && my <= H-margin.b) {
+            const binIdx = Math.min(Math.floor(((mx-margin.l)/pw)*nBins), nBins-1);
+            const lo = mn + binIdx*binW, hi = lo + binW;
+            const count = arr.filter(v => v >= lo && (binIdx === nBins-1 ? v <= hi : v < hi)).length;
+            showTooltip(evt, `[${lo.toFixed(1)} - ${hi.toFixed(1)}]: ${count}`);
+        }
+    } else if (d.type === 'bar') {
+        const vals = d.values;
+        const barW = pw/vals.length * 0.7;
+        vals.forEach((v,i) => {
+            const x = margin.l + (i/vals.length)*pw + (pw/vals.length-barW)/2;
+            const h = (v/Math.max(...vals))*ph;
+            if (mx >= x && mx <= x+barW && my >= H-margin.b-h && my <= H-margin.b) {
+                showTooltip(evt, `Catégorie ${i+1}: ${v}`);
+            }
+        });
+    } else if (d.type === 'scatter') {
+        const {xArr, yArr, slope, intercept} = d;
+        const xMin=Math.min(...xArr), xMax=Math.max(...xArr), yMin=Math.min(...yArr), yMax=Math.max(...yArr);
+        const sx = v => margin.l + ((v-xMin)/(xMax-xMin||1))*pw;
+        const sy = v => H - margin.b - ((v-yMin)/(yMax-yMin||1))*ph;
+        xArr.forEach((x,i) => {
+            const px = sx(x), py = sy(yArr[i]);
+            if (Math.abs(mx-px)<8 && Math.abs(my-py)<8) {
+                showTooltip(evt, `X=${x.toFixed(2)}, Y=${yArr[i].toFixed(2)}`);
+            }
+        });
+    } else if (d.type === 'pie') {
+        const vals = d.values;
+        const total = vals.reduce((s,v)=>s+v,0);
+        const cx = margin.l+pw/2, cy = margin.t+ph/2, r = Math.min(pw,ph)/2-20;
+        const dx = mx-cx, dy = my-cy;
+        if (dx*dx+dy*dy <= r*r) {
+            let angle = Math.atan2(dy, dx) + Math.PI/2;
+            if (angle < 0) angle += Math.PI*2;
+            let cum = 0;
+            for (let i=0; i<vals.length; i++) {
+                cum += vals[i]/total;
+                if (angle/(Math.PI*2) <= cum) {
+                    showTooltip(evt, `Part ${i+1}: ${vals[i]} (${(vals[i]/total*100).toFixed(1)}%)`);
+                    break;
+                }
+            }
+        }
+    } else if (d.type === 'boxplot') {
+        const arr = [...d.values].sort((a,b)=>a-b);
+        const q1=percentile(arr,25), q2=percentile(arr,50), q3=percentile(arr,75), iqr=q3-q1;
+        const lo=q1-1.5*iqr, hi=q3+1.5*iqr, mn=Math.min(...arr), mx2=Math.max(...arr);
+        const scale = v => margin.l + ((v-Math.min(lo,mn))/(Math.max(hi,mx2)-Math.min(lo,mn)))*pw;
+        if (my >= margin.t+ph/2-30 && my <= margin.t+ph/2+30) {
+            if (Math.abs(mx-scale(q2))<5) showTooltip(evt, `Médiane: ${q2.toFixed(2)}`);
+            else if (Math.abs(mx-scale(q1))<5) showTooltip(evt, `Q1: ${q1.toFixed(2)}`);
+            else if (Math.abs(mx-scale(q3))<5) showTooltip(evt, `Q3: ${q3.toFixed(2)}`);
+        }
+    } else if (d.type === 'normal') {
+        const mu = d.mu, sigma = d.sigma;
+        const xMin = mu-4*sigma, xMax = mu+4*sigma;
+        const v = xMin + ((mx-margin.l)/pw)*(xMax-xMin);
+        const normPdf = x => (1/(sigma*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/sigma)**2);
+        const yMax = normPdf(mu);
+        if (mx >= margin.l && mx <= W-margin.r) {
+            showTooltip(evt, `X=${v.toFixed(2)}, f(x)=${normPdf(v).toFixed(4)}`);
+        }
+    }
+});
+
+document.getElementById('main-chart').addEventListener('mouseleave', hideTooltip);
+const chartDefs = [
+    {id:'histogram',name:'Histogramme',icon:'bar_chart',types:['simple'],natures:['continuous']},
+    {id:'boxplot',name:'Boîte à moustaches',icon:'crop_square',types:['simple'],natures:['continuous']},
+    {id:'bar',name:'Barres',icon:'bar_chart',types:['simple','grouped'],natures:['discrete','continuous']},
+    {id:'pie',name:'Camembert',icon:'donut_large',types:['simple','grouped'],natures:['discrete','continuous']},
+    {id:'polygone',name:'Polygone',icon:'show_chart',types:['grouped'],natures:['discrete']},
+    {id:'histogram_classes',name:'Histogramme jointif',icon:'chart_bar',types:['classes'],natures:['continuous']},
+    {id:'ogive',name:'Ogive',icon:'trending_up',types:['classes'],natures:['continuous']},
+    {id:'scatter',name:'Nuage de points',icon:'scatter_plot',types:['bivariate'],natures:['discrete','continuous']},
+    {id:'normal_curve',name:'Courbe normale',icon:'water_drop',types:['simple'],natures:['continuous'],normalOnly:true},
+    {id:'violin',name:'Violon',icon:'graphic_eq',types:['simple'],natures:['continuous'],normalOnly:true},
+];
+
+function renderChartNav() {
+    const nav = document.getElementById('chart-nav');
+    const available = chartDefs.filter(c => {
+        if (!c.types.includes(dataType)) return false;
+        if (!c.natures.includes(dataNature)) return false;
+        if (c.normalOnly && currentStats && currentStats.is_normal === false) return false;
+        return true;
+    });
+    nav.innerHTML = available.map((c,i) =>
+        `<button class="chart-nav-item${i===0?' active':''}" onclick="selectChart('${c.id}',this)"><span class="material-symbols-outlined">${c.icon}</span>${c.name}</button>`
+    ).join('') || '<div class="empty-msg">Aucun graphique disponible</div>';
+    if (available.length > 0) selectChart(available[0].id, nav.querySelector('.chart-nav-item'));
+}
+
+function selectChart(id, el) {
+    el.parentElement.querySelectorAll('.chart-nav-item').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    drawChart(id);
+}
+
+function drawChart(id) {
+    const canvas = document.getElementById('main-chart');
+    const ctx = canvas.getContext('2d');
+    canvas.style.display = 'block';
+    document.getElementById('chart-empty').style.display = 'none';
+    const W = canvas.width = canvas.parentElement.clientWidth - 40;
+    const H = canvas.height = canvas.parentElement.clientHeight - 40;
+    ctx.clearRect(0,0,W,H);
+
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    const surf = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
+    const pri = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const succ = getComputedStyle(document.documentElement).getPropertyValue('--success').trim();
+    const warn = getComputedStyle(document.documentElement).getPropertyValue('--warning').trim();
+    const err = getComputedStyle(document.documentElement).getPropertyValue('--error').trim();
+    const txt = getComputedStyle(document.documentElement).getPropertyValue('--text-sec').trim();
+
+    ctx.fillStyle = surf; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle = '#1A3A5C'; ctx.lineWidth = 1;
+
+    const margin = {t:40,r:30,b:50,l:60};
+    const pw = W-margin.l-margin.r, ph = H-margin.t-margin.b;
+
+    function drawAxes(xLabel,yLabel) {
+        ctx.beginPath(); ctx.moveTo(margin.l,margin.t); ctx.lineTo(margin.l,H-margin.b); ctx.lineTo(W-margin.r,H-margin.b); ctx.stroke();
+        ctx.fillStyle = txt; ctx.font = '12px Inter'; ctx.textAlign = 'center';
+        ctx.fillText(xLabel, margin.l+pw/2, H-10);
+        ctx.save(); ctx.translate(15, margin.t+ph/2); ctx.rotate(-Math.PI/2); ctx.fillText(yLabel,0,0); ctx.restore();
+    }
+
+    if (id === 'histogram' && parsedValues.length) {
+        chartTooltipData = {type:'histogram', values:parsedValues};
+        const arr = parsedValues;
+        if (dataNature === 'discrete') {
+            const uniqueVals = [...new Set(arr)].sort((a,b)=>a-b);
+            const counts = uniqueVals.map(v => arr.filter(x=>x===v).length);
+            const maxF = Math.max(...counts);
+            drawAxes('Valeurs','Fréquence');
+            const barW = pw/uniqueVals.length * 0.7;
+            counts.forEach((f,i) => {
+                const x = margin.l + (i/uniqueVals.length)*pw + (pw/uniqueVals.length - barW)/2;
+                const h = (f/maxF)*ph;
+                ctx.fillStyle = pri;
+                ctx.fillRect(x, H-margin.b-h, barW, h);
+                ctx.fillStyle = txt; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+                ctx.fillText(uniqueVals[i], x+barW/2, H-margin.b+14);
+            });
+        } else {
+            const nBins = Math.min(20, Math.max(5, Math.ceil(Math.sqrt(arr.length))));
+            const mn = Math.min(...arr), mx = Math.max(...arr);
+            const binW = (mx-mn)/nBins;
+            const bins = Array(nBins).fill(0);
+            arr.forEach(v => { const i = Math.min(Math.floor((v-mn)/binW), nBins-1); bins[i]++; });
+            const maxF = Math.max(...bins);
+            drawAxes('Valeurs','Fréquence');
+            const barW = pw/nBins;
+            bins.forEach((f,i) => {
+                const x = margin.l + (i/nBins)*pw;
+                const h = (f/maxF)*ph;
+                ctx.fillStyle = pri;
+                ctx.fillRect(x, H-margin.b-h, barW, h);
+            });
+        }
+        const m = mean(arr);
+        ctx.strokeStyle = acc; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
+        const xM = margin.l + ((m-mn)/(mx-mn))*pw;
+        ctx.beginPath(); ctx.moveTo(xM,margin.t); ctx.lineTo(xM,H-margin.b); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle=acc; ctx.font='11px Inter'; ctx.fillText('μ='+m.toFixed(2),xM+4,margin.t+15);
+    }
+
+    else if (id === 'boxplot' && parsedValues.length) {
+        chartTooltipData = {type:'boxplot', values:parsedValues};
+        const arr = [...parsedValues].sort((a,b)=>a-b);
+        const q1=percentile(arr,25), q2=percentile(arr,50), q3=percentile(arr,75), iqr=q3-q1;
+        const lo=q1-1.5*iqr, hi=q3+1.5*iqr;
+        const mn=Math.min(...arr), mx=Math.max(...arr);
+        const scale = v => margin.l + ((v-Math.min(lo,mn))/(Math.max(hi,mx)-Math.min(lo,mn)))*pw;
+        drawAxes('Valeurs','');
+        const cx = margin.l+pw/2, bw = 80;
+        ctx.fillStyle = pri; ctx.fillRect(scale(q1),margin.t+ph/2-30, scale(q3)-scale(q1),60);
+        ctx.strokeStyle = acc; ctx.lineWidth = 2;
+        ctx.strokeRect(scale(q1),margin.t+ph/2-30, scale(q3)-scale(q1),60);
+        ctx.strokeStyle = succ; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(scale(q2),margin.t+ph/2-30); ctx.lineTo(scale(q2),margin.t+ph/2+30); ctx.stroke();
+        ctx.strokeStyle = acc; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(scale(q1),margin.t+ph/2); ctx.lineTo(scale(Math.max(lo,mn)),margin.t+ph/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(scale(q3),margin.t+ph/2); ctx.lineTo(scale(Math.min(hi,mx)),margin.t+ph/2); ctx.stroke();
+        arr.filter(v=>v<lo||v>hi).forEach(v => { ctx.fillStyle=err; ctx.beginPath(); ctx.arc(scale(v),margin.t+ph/2,4,0,Math.PI*2); ctx.fill(); });
+    }
+
+    else if (id === 'bar' && parsedValues.length) {
+        chartTooltipData = {type:'bar', values: dataType==='grouped'?parsedFreqs:parsedValues};
+        drawAxes('Catégories','Effectif');
+        const vals = dataType==='grouped'?parsedFreqs:parsedValues;
+        const mx = Math.max(...vals);
+        const barW = pw/vals.length * 0.7;
+        const colors = [pri,acc,succ,'#AA00FF',warn,err];
+        vals.forEach((v,i) => {
+            const x = margin.l + (i/vals.length)*pw + (pw/vals.length-barW)/2;
+            const h = (v/mx)*ph;
+            ctx.fillStyle = colors[i%colors.length];
+            ctx.fillRect(x,H-margin.b-h,barW,h);
+            ctx.fillStyle = txt; ctx.font='11px Inter'; ctx.textAlign='center';
+            ctx.fillText(v, x+barW/2, H-margin.b-h-6);
+        });
+    }
+
+    else if (id === 'pie' && parsedValues.length) {
+        chartTooltipData = {type:'pie', values: dataType==='grouped'?parsedFreqs:parsedValues};
+        const vals = dataType==='grouped'?parsedFreqs:parsedValues;
+        const total = vals.reduce((s,v)=>s+v,0);
+        const colors = [pri,acc,succ,'#AA00FF',warn,err];
+        let angle = -Math.PI/2;
+        const cx = margin.l+pw/2, cy = margin.t+ph/2, r = Math.min(pw,ph)/2-20;
+        vals.forEach((v,i) => {
+            const sweep = (v/total)*Math.PI*2;
+            ctx.fillStyle = colors[i%colors.length];
+            ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,angle+sweep); ctx.closePath(); ctx.fill();
+            const mid = angle+sweep/2;
+            ctx.fillStyle='white'; ctx.font='bold 12px Inter'; ctx.textAlign='center';
+            ctx.fillText((v/total*100).toFixed(1)+'%', cx+Math.cos(mid)*(r*0.65), cy+Math.sin(mid)*(r*0.65)+4);
+            angle += sweep;
+        });
+    }
+
+    else if (id === 'polygone' && parsedValues.length) {
+        chartTooltipData = {type:'polygone', values:parsedValues, freqs:parsedFreqs};
+        drawAxes('Valeurs','Effectifs');
+        const mx = Math.max(...parsedFreqs);
+        const pts = parsedValues.map((v,i) => ({
+            x: margin.l + ((v-parsedValues[0])/(parsedValues[parsedValues.length-1]-parsedValues[0]))*pw,
+            y: H - margin.b - (parsedFreqs[i]/mx)*ph
+        }));
+        ctx.strokeStyle = acc; ctx.lineWidth = 2;
+        ctx.beginPath(); pts.forEach((p,i) => i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); ctx.stroke();
+        ctx.fillStyle = acc+'33';
+        ctx.beginPath(); ctx.moveTo(pts[0].x,H-margin.b); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.lineTo(pts[pts.length-1].x,H-margin.b); ctx.fill();
+        pts.forEach(p => { ctx.fillStyle=acc; ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fill(); });
+    }
+
+    else if (id === 'histogram_classes' && parsedLower.length) {
+        chartTooltipData = {type:'histogram_classes', lower:parsedLower, upper:parsedUpper, freqs:parsedFreqs};
+        drawAxes('Classes','Effectifs');
+        const mx = Math.max(...parsedFreqs);
+        parsedLower.forEach((lo,i) => {
+            const w = ((parsedUpper[i]-lo)/(parsedUpper[parsedUpper.length-1]-parsedLower[0]))*pw;
+            const x = margin.l + ((lo-parsedLower[0])/(parsedUpper[parsedUpper.length-1]-parsedLower[0]))*pw;
+            const h = (parsedFreqs[i]/mx)*ph;
+            ctx.fillStyle = pri; ctx.fillRect(x,H-margin.b-h,w,h);
+            ctx.fillStyle = txt; ctx.font='10px Inter'; ctx.textAlign='center';
+            ctx.fillText(lo+'-'+parsedUpper[i], x+w/2, H-margin.b+14);
+        });
+    }
+
+    else if (id === 'ogive' && parsedLower.length) {
+        chartTooltipData = {type:'ogive', lower:parsedLower, upper:parsedUpper, freqs:parsedFreqs};
+        drawAxes('Valeurs','Effectifs cumulés');
+        const cum = []; let s=0; parsedFreqs.forEach(f=>{s+=f;cum.push(s);});
+        const mx = cum[cum.length-1];
+        const pts = parsedUpper.map((u,i) => ({
+            x: margin.l + ((u-parsedLower[0])/(parsedUpper[parsedUpper.length-1]-parsedLower[0]))*pw,
+            y: H - margin.b - (cum[i]/mx)*ph
+        }));
+        ctx.strokeStyle = acc; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(pts[0].x,H-margin.b); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.stroke();
+        ctx.fillStyle = acc+'33';
+        ctx.beginPath(); ctx.moveTo(pts[0].x,H-margin.b); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.lineTo(pts[pts.length-1].x,H-margin.b); ctx.fill();
+        pts.forEach(p => { ctx.fillStyle=acc; ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fill(); });
+    }
+
+    else if (id === 'scatter' && parsedValues.length) {
+        const stats = calcBivariate(parsedValues, parsedFreqs);
+        chartTooltipData = {type:'scatter', xArr:parsedValues, yArr:parsedFreqs, slope:stats.regression_slope, intercept:stats.regression_intercept};
+        drawAxes('X','Y');
+        const xArr = parsedValues, yArr = parsedFreqs;
+        const xMin=Math.min(...xArr), xMax=Math.max(...xArr), yMin=Math.min(...yArr), yMax=Math.max(...yArr);
+        const sx = v => margin.l + ((v-xMin)/(xMax-xMin||1))*pw;
+        const sy = v => H - margin.b - ((v-yMin)/(yMax-yMin||1))*ph;
+        xArr.forEach((x,i) => { ctx.fillStyle=acc; ctx.beginPath(); ctx.arc(sx(x),sy(yArr[i]),5,0,Math.PI*2); ctx.fill(); });
+        ctx.strokeStyle=err; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+        ctx.beginPath(); ctx.moveTo(sx(xMin),sy(stats.regression_slope*xMin+stats.regression_intercept));
+        ctx.lineTo(sx(xMax),sy(stats.regression_slope*xMax+stats.regression_intercept)); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=txt; ctx.font='11px Inter'; ctx.fillText('ŷ='+stats.regression_slope.toFixed(2)+'x+'+stats.regression_intercept.toFixed(2),margin.l+10,margin.t+15);
+    }
+
+    else if (id === 'normal_curve') {
+        if (!currentStats || currentStats.is_normal === false) { canvas.style.display='none'; document.getElementById('chart-empty').style.display='block'; document.getElementById('chart-empty').innerHTML='<div class="empty-msg"><span class="material-symbols-outlined" style="font-size:48px;color:var(--error)">block</span><br><br>Courbe normale non disponible — données non-normales</div>'; chartTooltipData=null; return; }
+        const mu=mean(parsedValues), sigma=stddev(parsedValues);
+        chartTooltipData = {type:'normal', mu:mu, sigma:sigma};
+        drawAxes('Valeurs','Densité');
+        const xMin=mu-4*sigma, xMax=mu+4*sigma;
+        const sx = v => margin.l + ((v-xMin)/(xMax-xMin))*pw;
+        const normPdf = x => (1/(sigma*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/sigma)**2);
+        const maxY = normPdf(mu);
+        const sy = v => H - margin.b - (v/maxY)*ph;
+        ctx.strokeStyle = acc; ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let px=0; px<=pw; px++) {
+            const v = xMin + (px/pw)*(xMax-xMin);
+            const y = normPdf(v);
+            px===0?ctx.moveTo(margin.l+px,sy(y)):ctx.lineTo(margin.l+px,sy(y));
+        }
+        ctx.stroke();
+        ctx.fillStyle = acc+'22';
+        ctx.beginPath(); ctx.moveTo(sx(mu-sigma),H-margin.b);
+        for (let x=mu-sigma;x<=mu+sigma;x+=sigma/50) ctx.lineTo(sx(x),sy(normPdf(x)));
+        ctx.lineTo(sx(mu+sigma),H-margin.b); ctx.fill();
+        ctx.strokeStyle=succ; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(sx(mu),margin.t); ctx.lineTo(sx(mu),H-margin.b); ctx.stroke();
+        ctx.fillStyle=txt; ctx.font='11px Inter'; ctx.fillText('μ='+mu.toFixed(2)+' σ='+sigma.toFixed(2),margin.l+10,margin.t+15);
+    }
+
+    else if (id === 'violin') {
+        if (!currentStats || currentStats.is_normal === false) { canvas.style.display='none'; document.getElementById('chart-empty').style.display='block'; document.getElementById('chart-empty').innerHTML='<div class="empty-msg"><span class="material-symbols-outlined" style="font-size:48px;color:var(--error)">block</span><br><br>Violon non disponible — données non-normales</div>'; chartTooltipData=null; return; }
+        chartTooltipData = {type:'violin', values:parsedValues};
+        const mu=mean(parsedValues), sigma=stddev(parsedValues);
+        drawAxes('','Valeurs');
+        const yMin=mu-4*sigma, yMax=mu+4*sigma;
+        const sy = v => margin.t + ((yMax-v)/(yMax-yMin))*ph;
+        const normPdf = x => (1/(sigma*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/sigma)**2);
+        const maxW = pw*0.35;
+        ctx.fillStyle = pri+'88';
+        ctx.beginPath();
+        for (let py=0; py<=ph; py++) {
+            const v = yMax - (py/ph)*(yMax-yMin);
+            const w = normPdf(v)/normPdf(mu)*maxW;
+            ctx.lineTo(margin.l+pw/2-w, margin.t+py);
+        }
+        for (let py=ph; py>=0; py--) {
+            const v = yMax - (py/ph)*(yMax-yMin);
+            const w = normPdf(v)/normPdf(mu)*maxW;
+            ctx.lineTo(margin.l+pw/2+w, margin.t+py);
+        }
+        ctx.fill();
+        ctx.strokeStyle=acc; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(margin.l+pw/2,margin.t); ctx.lineTo(margin.l+pw/2,H-margin.b); ctx.stroke();
+    }
+
+    else {
+        canvas.style.display='none'; document.getElementById('chart-empty').style.display='block';
+        document.getElementById('chart-empty').innerHTML='<div class="empty-msg"><span class="material-symbols-outlined" style="font-size:48px;color:#666">show_chart</span><br><br>Sélectionnez un graphique</div>';
+        chartTooltipData = null;
+    }
+}
+
+// ─── PROBABILITY LAWS ───
+const laws = [
+    {id:'normal',name:'Normale',params:['μ (moyenne)','σ (écart-type)'],defaults:[0,1],natures:['continuous']},
+    {id:'uniform',name:'Uniforme',params:['a (min)','b (max)'],defaults:[0,1],natures:['continuous']},
+    {id:'binomial',name:'Binomiale',params:['n (épreuves)','p (succès)'],defaults:[10,0.5],natures:['discrete']},
+    {id:'poisson',name:'Poisson',params:['λ (moyenne)'],defaults:[5],natures:['discrete']},
+    {id:'bernoulli',name:'Bernoulli',params:['p (succès)'],defaults:[0.5],natures:['discrete']},
+    {id:'chi2',name:'Chi²',params:['k (degrés liberté)'],defaults:[5],natures:['continuous']},
+];
+
+function renderLaws() {
+    const nav = document.getElementById('law-nav');
+    const available = laws.filter(l => l.natures.includes(dataNature));
+    nav.innerHTML = available.map((l,i) => `<button class="law-nav-item${i===0?' active':''}" onclick="selectLaw('${l.id}',this)">${l.name}</button>`).join('');
+    if (available.length > 0) selectLaw(available[0].id, nav.querySelector('.law-nav-item'));
+}
+
+function selectLaw(id, el) {
+    el.parentElement.querySelectorAll('.law-nav-item').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+    const law = laws.find(l=>l.id===id);
+    const content = document.getElementById('prob-content');
+    content.innerHTML = `
+        <div class="card">
+            <div class="card-header"><span class="material-symbols-outlined">functions</span><div class="card-title">Paramètres — ${law.name}</div></div>
+            <div class="field-row">${law.params.map((p,i) => `<div class="field"><label class="field-label">${p}</label><input class="field-input" type="number" id="law-p${i}" value="${law.defaults[i]}" step="any" oninput="calcLaw('${id}')"></div>`).join('')}</div>
+        </div>
+        <div id="law-results"></div>
+        <div class="card"><div class="card-header"><span class="material-symbols-outlined">show_chart</span><div class="card-title">Graphique</div></div>
+            <canvas id="law-chart" width="600" height="250" style="width:100%"></canvas>
+        </div>`;
+    calcLaw(id);
+}
+
+function calcLaw(id) {
+    const get = i => parseFloat(document.getElementById('law-p'+i).value)||0;
+    let results = {};
+    if (id === 'normal') {
+        const mu=get(0), sig=get(1);
+        results = {μ:mu,σ:sig,'P(X<0)':normCdf((0-mu)/sig),'P(X>0)':1-normCdf((0-mu)/sig),'Espérance':mu,'Variance':sig*sig};
+    } else if (id === 'uniform') {
+        const a=get(0), b=get(1);
+        results = {a:a,b:b,'P(X<c)':((a+b)/2-a)/(b-a),'Espérance':(a+b)/2,'Variance':((b-a)**2)/12};
+    } else if (id === 'binomial') {
+        const n=get(0), p=get(1);
+        results = {n:n,p:p,'Espérance':n*p,'Variance':n*p*(1-p),'E(X)':n*p};
+    } else if (id === 'poisson') {
+        const lam=get(0);
+        results = {λ:lam,'Espérance':lam,'Variance':lam,'P(X=0)':Math.exp(-lam)};
+    } else if (id === 'bernoulli') {
+        const p=get(0);
+        results = {p:p,'Espérance':p,'Variance':p*(1-p),'P(X=0)':1-p,'P(X=1)':p};
+    } else if (id === 'chi2') {
+        const k=get(0);
+        results = {k:k,'Espérance':k,'Variance':2*k};
+    }
+    document.getElementById('law-results').innerHTML = `<div class="chip-row">${Object.entries(results).map(([k,v])=>`<div class="chip"><div class="chip-label">${k}</div><div class="chip-value">${typeof v==='number'?v.toFixed(4):v}</div></div>`).join('')}</div>`;
+    drawLawChart(id);
+}
+
+function normCdf(z) {
+    const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+    const sign = z<0?-1:1; z=Math.abs(z)/Math.sqrt(2);
+    const t=1/(1+p*z);
+    const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-z*z);
+    return 0.5*(1+sign*y);
+}
+
+function drawLawChart(id) {
+    const canvas = document.getElementById('law-chart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    const surf = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
+    const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const pri = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const txt = getComputedStyle(document.documentElement).getPropertyValue('--text-sec').trim();
+    ctx.fillStyle = surf; ctx.fillRect(0,0,W,H);
+    const margin = {t:20,r:20,b:30,l:40};
+    const pw=W-margin.l-margin.r, ph=H-margin.t-margin.b;
+    const get = i => parseFloat(document.getElementById('law-p'+i).value)||0;
+
+    if (id === 'normal') {
+        const mu=get(0), sig=get(1); if(sig<=0) return;
+        const xMin=mu-4*sig, xMax=mu+4*sig;
+        const normPdf = x => (1/(sig*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/sig)**2);
+        const maxY = normPdf(mu);
+        ctx.strokeStyle = acc; ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let px=0;px<=pw;px++) {
+            const v=xMin+(px/pw)*(xMax-xMin);
+            const y=H-margin.b-(normPdf(v)/maxY)*ph;
+            px===0?ctx.moveTo(margin.l+px,y):ctx.lineTo(margin.l+px,y);
+        }
+        ctx.stroke();
+    } else if (id === 'binomial') {
+        const n=Math.round(get(0)), p=get(1);
+        if(n<=0||p<=0||p>=1) return;
+        const barW = pw/(n+1)*0.7;
+        let maxP = 0;
+        const probs = [];
+        for(let k=0;k<=n;k++){const pr=comb(n,k)*p**k*(1-p)**(n-k); probs.push(pr); if(pr>maxP) maxP=pr;}
+        probs.forEach((pr,k) => {
+            const x=margin.l+(k/(n+1))*pw+(pw/(n+1)-barW)/2;
+            const h=(pr/maxP)*ph;
+            ctx.fillStyle=pri; ctx.fillRect(x,H-margin.b-h,barW,h);
+            if(n<=20){ctx.fillStyle=txt;ctx.font='9px Inter';ctx.textAlign='center';ctx.fillText(k,x+barW/2,H-margin.b-h-4);}
+        });
+    } else if (id === 'poisson') {
+        const lam=get(0); if(lam<=0) return;
+        const maxK = Math.ceil(lam+4*Math.sqrt(lam));
+        const barW = pw/(maxK+1)*0.7;
+        let maxP=0; const probs=[];
+        for(let k=0;k<=maxK;k++){const pr=Math.exp(-lam)*lam**k/factorial(k); probs.push(pr); if(pr>maxP) maxP=pr;}
+        probs.forEach((pr,k) => {
+            const x=margin.l+(k/(maxK+1))*pw+(pw/(maxK+1)-barW)/2;
+            const h=(pr/maxP)*ph;
+            ctx.fillStyle=pri; ctx.fillRect(x,H-margin.b-h,barW,h);
+            if(maxK<=30){ctx.fillStyle=txt;ctx.font='9px Inter';ctx.textAlign='center';ctx.fillText(k,x+barW/2,H-margin.b-h-4);}
+        });
+    } else if (id === 'chi2') {
+        const k=Math.round(get(0)); if(k<=0) return;
+        const xMax = Math.max(k+4*Math.sqrt(2*k), 10);
+        const chiPdf = x => {if(x<=0) return 0; return (x**(k/2-1)*Math.exp(-x/2))/(2**(k/2)*gamma(k/2));};
+        let maxY=0; for(let x=0.01;x<=xMax;x+=0.1){const y=chiPdf(x);if(y>maxY)maxY=y;}
+        ctx.strokeStyle=pri; ctx.lineWidth=2;
+        ctx.beginPath();
+        for(let px=0;px<=pw;px++){const v=(px/pw)*xMax;const y=H-margin.b-(chiPdf(v)/maxY)*ph;px===0?ctx.moveTo(margin.l+px,y):ctx.lineTo(margin.l+px,y);}
+        ctx.stroke();
+    }
+}
+
+function factorial(n){let r=1;for(let i=2;i<=n;i++)r*=i;return r;}
+function comb(n,k){return factorial(n)/(factorial(k)*factorial(n-k));}
+function gamma(z){
+    if(z<0.5) return Math.PI/(Math.sin(Math.PI*z)*gamma(1-z));
+    z-=1;
+    const g=7, c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,
+        -176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+    let x=c[0];for(let i=1;i<g+2;i++)x+=c[i]/(z+i);
+    const t=z+g+0.5;
+    return Math.sqrt(2*Math.PI)*Math.pow(t,z+0.5)*Math.exp(-t)*x;
+}
+
+// ─── LESSONS ───
+const lessons = [
+    {id:1,title:'Mesures centrales',sub:'Moyenne, médiane, mode',color:1,
+     def:'Les mesures de tendance centrale résument une distribution en un point représentatif.',
+     detail:'La moyenne arithmétique est la somme de toutes les valeurs divisée par le nombre d\'observations. La médiane divise la distribution en deux parties égales. Le mode est la valeur la plus fréquente.',
+     rem:'La moyenne est sensible aux valeurs extrêmes, la médiane est robuste. Pour des distributions symétriques, les trois sont proches.'},
+    {id:2,title:'Dispersion',sub:'Variance, écart-type, CV',color:2,
+     def:'La dispersion mesure l\'étalement des données autour de la valeur centrale.',
+     detail:'La variance est la moyenne des carrés des écarts à la moyenne. L\'écart-type est sa racine carrée. Le CV (coefficient de variation) permet comparer la dispersion entre variables de natures différentes.',
+     rem:'Un CV < 15% = faible dispersion, 15-30% = modéré, > 30% = élevé.'},
+    {id:3,title:'Quartiles & IQR',sub:'Q1, Q2, Q3, boîte à moustaches',color:3,
+     def:'Les quartiles découpent la distribution en 4 parties égales.',
+     detail:'Q1 (25e percentile), Q2 = médiane (50e), Q3 (75e). L\'IQR = Q3 - Q1 contient 50% central des données. Les valeurs hors [Q1-1.5×IQR ; Q3+1.5×IQR] sont considérées comme aberrantes.',
+     rem:'La boîte à moustaches visualise les quartiles et les valeurs aberrantes.'},
+    {id:4,title:'Asymétrie & Aplatissement',sub:'Skewness, Kurtosis',color:4,
+     def:'L\'asymétrie mesure le déséquilibre d\'une distribution. L\'aplatissement mesure l\'épaisseur des queues.',
+     detail:'Skewness > 0 : queue à droite. Skewness < 0 : queue à gauche. |Skewness| < 0.5 : approximativement symétrique. Kurtosis > 0 : queues lourdes (leptocurtique). Kurtosis < 0 : queues légères (platycurtique).',
+     rem:'La normale a skewness = 0 et kurtosis = 0.'},
+    {id:5,title:'Lois de probabilité',sub:'Bernoulli, Binomiale, Poisson, Normale, Uniforme, Chi²',color:5,
+     def:'Les lois de probabilité modélisent le comportement aléatoire de phénomènes.',
+     detail:'Bernoulli : 1 épreuve, 2 issues. Binomiale : n épreuves de Bernoulli. Poisson : nombre d\'événements rares. Normale : distribution en cloche. Uniforme : tous les événements equiprobables. Chi² : test d\'ajustement.',
+     rem:'Le choix de la loi dépend de la nature du phénomène étudié.'},
+    {id:6,title:'Loi normale',sub:'Propriétés, standardisation, règle 68-95-99.7',color:6,
+     def:'La loi normale est la distribution en cloche symétrique, la plus importante en statistiques.',
+     detail:'Elle est définie par μ (moyenne) et σ (écart-type). 68% des valeurs dans [μ-σ; μ+σ], 95% dans [μ-2σ; μ+2σ], 99.7% dans [μ-3σ; μ+3σ]. La standardisation Z = (X-μ)/σ permet de comparer des distributions différentes.',
+     rem:'Le TCL justifie l\'usage de la normale : la moyenne de n\'importe quel échantillon suffisamment grand suit approximativement une loi normale.'},
+    {id:7,title:'Test de Shapiro-Wilk',sub:'Vérification de la normalité',color:7,
+     def:'Le test de Shapiro-Wilk vérifie si une distribution suit une loi normale.',
+     detail:'H0 : les données suivent une loi normale. Si p > 0.05, on ne rejette pas H0 (distribution normale). Si p ≤ 0.05, on rejette H0 (distribution non-normale). Ce test est fiable pour n entre 3 et 5000.',
+     rem:'La normalité est nécessaire pour de nombreux tests statistiques (t-test, ANOVA, etc.).'},
+    {id:8,title:'Intervalles de confiance',sub:'Estimation par intervalle',color:8,
+     def:'Un intervalle de confiance donne une plage de valeurs plausibles pour un paramètre inconnu.',
+     detail:'IC 95% : on est sûr à 95% que le vrai paramètre est dans cet intervalle. IC = estimateur ± (valeur critique × erreur standard). La largeur dépend de la taille de l\'échantillon et du niveau de confiance.',
+     rem:'Un IC plus large signifie plus d\'incertitude. Augmenter n réduit la largeur de l\'IC.'},
+    {id:9,title:'Convergences',sub:'Loi des grands nombres, théorème central limite',color:9,
+     def:'Le LLN dit que la moyenne empirique converge vers l\'espérance. Le TCL dit que la moyenne suit une loi normale pour n grand.',
+     detail:'Plus on a de données, plus la moyenne est fiable (LLN). Peu importe la distribution d\'origine, la moyenne sera normale pour grand n (TCL).',
+     rem:'Le TCL est la base de tous les tests statistiques. C\'est pourquoi on peut utiliser des tests même si la distribution n\'est pas normale.'}
+];
+
+function renderLessons() {
+    document.getElementById('lessons-list').style.display = 'grid';
+    document.getElementById('lesson-detail').style.display = 'none';
+    const colors = [getComputedStyle(document.documentElement).getPropertyValue('--primary').trim(),getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),getComputedStyle(document.documentElement).getPropertyValue('--success').trim(),'#AA00FF',getComputedStyle(document.documentElement).getPropertyValue('--warning').trim(),getComputedStyle(document.documentElement).getPropertyValue('--error').trim()];
+    document.getElementById('lessons-list').innerHTML = lessons.map((l,i) =>
+        `<div class="lesson-card" onclick="openLesson(${l.id})">
+            <div class="lesson-num" style="background:${colors[i%colors.length]}">${l.id}</div>
+            <div><div class="lesson-title">${l.title}</div><div class="lesson-sub">${l.sub}</div></div>
+        </div>`
+    ).join('');
+}
+
+function openLesson(id) {
+    const l = lessons.find(x=>x.id===id);
+    document.getElementById('lessons-list').style.display = 'none';
+    const det = document.getElementById('lesson-detail');
+    det.style.display = 'block';
+    det.innerHTML = `
+        <div class="back-btn" onclick="renderLessons()"><span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Retour</div>
+        <h2>Chapitre ${l.id} — ${l.title}</h2>
+        <div class="card"><div class="card-header"><span class="material-symbols-outlined">info</span><div class="card-title">Définition</div></div><p>${l.def}</p></div>
+        <div class="card"><div class="card-header"><span class="material-symbols-outlined">menu_book</span><div class="card-title">Détails</div></div><p>${l.detail}</p></div>
+        <div class="card"><div class="card-header"><span class="material-symbols-outlined">lightbulb</span><div class="card-title">Remarque</div></div><p style="color:var(--warning)">${l.rem}</p></div>`;
+}
+
+function updateExportInfo() {
+    document.getElementById('exp-type').textContent = dataType;
+    document.getElementById('exp-nature').textContent = dataNature === 'discrete' ? 'Discret' : 'Continu';
+    document.getElementById('exp-var').textContent = document.getElementById('var-name').value;
+    document.getElementById('exp-n').textContent = parsedValues.length || parsedFreqs.reduce((a,b)=>a+b,0) || parsedLower.length || '-';
+}
+
+// ─── INIT ───
+parsePreview();
+</script>
+</body>
+</html>

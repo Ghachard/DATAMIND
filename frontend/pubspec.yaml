@@ -1,0 +1,36 @@
+name: datamind
+description: Application statistique pedagogique - ISPM
+publish_to: 'none'
+version: 2.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.3
+  dio: ^5.4.0
+  fl_chart: ^0.66.0
+  shared_preferences: ^2.2.2
+  intl: 0.20.2
+  google_fonts: ^6.1.0
+  path_provider: ^2.1.2
+  path: ^1.8.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  build_runner: ^2.4.8
+  riverpod_generator: ^2.3.9
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/images/
+    - assets/data/
