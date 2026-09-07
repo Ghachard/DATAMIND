@@ -135,7 +135,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
     }
   }
 
-  Widget _buildLawContent(Map<String, dynamic> currentLaw, ResultState result) {
+  Widget _buildLawContent(Map<String, dynamic> currentLaw, ResultState result, Locale locale) {
     return Column(
       children: [
         Card(
@@ -426,7 +426,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
                                 ),
                         ),
                         const SizedBox(height: 12),
-                        Expanded(child: _buildLawContent(currentLaw, result)),
+                        Expanded(child: _buildLawContent(currentLaw, result, locale)),
                       ],
                     ),
                   )
@@ -465,7 +465,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
                                 ),
                         ),
                         const SizedBox(width: 16),
-                        Expanded(child: _buildLawContent(currentLaw, result)),
+                        Expanded(child: _buildLawContent(currentLaw, result, locale)),
                       ],
                     ),
                   ),

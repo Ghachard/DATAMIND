@@ -109,10 +109,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
               child: result.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : result.error != null
-                      ? _buildError(result.error!)
+                      ? _buildError(result.error!, locale)
                       : result.hasResult
-                          ? _buildResults(result)
-                          : _buildEmpty(),
+                          ? _buildResults(result, locale)
+                          : _buildEmpty(locale),
             ),
           ],
         ],
@@ -123,7 +123,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
 );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(Locale locale) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -138,7 +138,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     );
   }
 
-  Widget _buildError(String error) {
+  Widget _buildError(String error, Locale locale) {
     return Center(
       child: Card(
         color: AppColors.error.withOpacity(0.1),
@@ -159,7 +159,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     );
   }
 
-  Widget _buildResults(ResultState result) {
+  Widget _buildResults(ResultState result, Locale locale) {
     final stats = result.stats!;
     final entries = stats.entries.where((e) =>
         e.key != 'outliers' && e.key != 'z_scores' && e.key != 'class_midpoints' && e.key != 'cumulative_freq' &&
