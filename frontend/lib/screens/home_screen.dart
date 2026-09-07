@@ -21,12 +21,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   static const _destinations = [
-    (_icon: Icons.table_chart_outlined, _selIcon: Icons.table_chart, _label: 'nav_input'),
-    (_icon: Icons.bar_chart_outlined, _selIcon: Icons.bar_chart, _label: 'nav_analysis'),
-    (_icon: Icons.show_chart_outlined, _selIcon: Icons.show_chart, _label: 'nav_charts'),
-    (_icon: Icons.functions_outlined, _selIcon: Icons.functions, _label: 'nav_probability'),
-    (_icon: Icons.menu_book_outlined, _selIcon: Icons.menu_book, _label: 'nav_lessons'),
-    (_icon: Icons.picture_as_pdf_outlined, _selIcon: Icons.picture_as_pdf, _label: 'nav_export'),
+    (icon: Icons.table_chart_outlined, selIcon: Icons.table_chart, label: 'nav_input'),
+    (icon: Icons.bar_chart_outlined, selIcon: Icons.bar_chart, label: 'nav_analysis'),
+    (icon: Icons.show_chart_outlined, selIcon: Icons.show_chart, label: 'nav_charts'),
+    (icon: Icons.functions_outlined, selIcon: Icons.functions, label: 'nav_probability'),
+    (icon: Icons.menu_book_outlined, selIcon: Icons.menu_book, label: 'nav_lessons'),
+    (icon: Icons.picture_as_pdf_outlined, selIcon: Icons.picture_as_pdf, label: 'nav_export'),
   ];
 
   static const _screens = [
@@ -72,9 +72,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           _NavButton(
                             index: i,
                             selectedIndex: _selectedIndex,
-                            icon: _destinations[i]._$1,
-                            selectedIcon: _destinations[i]._$2,
-                            label: AppStrings.tr(_destinations[i]._$3, locale),
+                            icon: _destinations[i].icon,
+                            selectedIcon: _destinations[i].selIcon,
+                            label: AppStrings.tr(_destinations[i].label, locale),
                             isCompact: isCompact,
                             onTap: () => setState(() => _selectedIndex = i),
                           ),
