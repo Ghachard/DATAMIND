@@ -5,6 +5,7 @@ import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/data_provider.dart';
 import '../providers/result_provider.dart';
+import '../providers/app_state.dart';
 
 class ProbabilityScreen extends ConsumerStatefulWidget {
   const ProbabilityScreen({super.key});
@@ -261,7 +262,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _calculate,
                     icon: const Icon(Icons.calculate),
-                    label: Text(_isLoading ? 'Calcul...' : 'Calculer'),
+                    label: Text(_isLoading ? AppStrings.tr('prob_loading', locale) : AppStrings.tr('prob_calculate', locale)),
                   ),
                 ),
               ],
@@ -350,6 +351,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
   Widget build(BuildContext context) {
     final data = ref.watch(dataProvider);
     final result = ref.watch(resultProvider);
+    final locale = ref.watch(languageProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
     final natureStr = data.dataNature == DataNature.discrete ? 'discrete' : 'continuous';
@@ -375,7 +377,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Lois de probabilité', style: Theme.of(context).textTheme.headlineMedium),
+                Text(AppStrings.tr('prob_title', locale), style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(height: 16),
                 if (!data.hasData)
                   Expanded(
@@ -402,7 +404,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
                         SizedBox(
                           height: 48,
                           child: availableLaws.isEmpty
-                              ? const Center(child: Text('Aucune loi disponible', style: TextStyle(color: Color(0xFF999999), fontSize: 12)))
+                              ? Center(child: Text(AppStrings.tr('prob_empty', locale), style: TextStyle(color: Color(0xFF999999), fontSize: 12)))
                               : ListView.separated(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: availableLaws.length,
@@ -435,7 +437,7 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
                         SizedBox(
                           width: 180,
                           child: availableLaws.isEmpty
-                              ? const Center(child: Text('Aucune loi disponible'))
+                              ? Center(child: Text(AppStrings.tr('prob_empty', locale)))
                               : ListView.builder(
                                   itemCount: availableLaws.length,
                                   itemBuilder: (context, index) {

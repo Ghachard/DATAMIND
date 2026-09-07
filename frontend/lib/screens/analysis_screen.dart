@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/result_provider.dart';
+import '../providers/app_state.dart';
 
 class AnalysisScreen extends ConsumerStatefulWidget {
   const AnalysisScreen({super.key});
@@ -39,6 +40,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final result = ref.watch(resultProvider);
+    final locale = ref.watch(languageProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
 
@@ -53,14 +55,14 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
           Row(
             children: [
               Text(
-                'Analyse statistique',
+                AppStrings.tr('analysis_title', locale),
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const Spacer(),
               IconButton(
                 icon: Icon(_showHistory ? Icons.close : Icons.history),
                 onPressed: () => setState(() => _showHistory = !_showHistory),
-                tooltip: 'Historique (5 dernières)',
+                tooltip: AppStrings.tr('btn_history', locale),
               ),
             ],
           ),
@@ -69,7 +71,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             SizedBox(
               height: 120,
               child: _history.isEmpty
-                  ? const Center(child: Text('Aucun historique'))
+                  ? Center(child: Text(AppStrings.tr('analysis_no_history', locale)))
                   : ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: _history.length,
@@ -128,9 +130,9 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
         children: [
           Icon(Icons.analytics_outlined, size: 64, color: Color(0xFF666666)),
           const SizedBox(height: 16),
-          Text('Aucun résultat', style: Theme.of(context).textTheme.titleLarge),
+          Text(AppStrings.tr('analysis_empty', locale), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
-          Text('Saisissez des données puis cliquez Calculer', style: TextStyle(color: Color(0xFF999999))),
+          Text(AppStrings.tr('analysis_empty_hint', locale), style: TextStyle(color: Color(0xFF999999))),
         ],
       ),
     );
@@ -165,24 +167,24 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     ).toList();
 
     final statLabels = {
-      'n': 'Effectif (n)',
-      'mean': 'Moyenne',
-      'median': 'Médiane',
-      'mode': 'Mode',
-      'variance': 'Variance',
-      'std_dev': 'Écart-type',
-      'cv': 'CV (%)',
-      'min_val': 'Minimum',
-      'max_val': 'Maximum',
-      'range': 'Étendue',
-      'sum': 'Somme',
-      'q1': 'Q1',
-      'q2': 'Q2 (Médiane)',
-      'q3': 'Q3',
-      'iqr': 'IQR',
-      'skewness': 'Asymétrie',
-      'kurtosis': 'Aplatissement',
-      'sem': 'Erreur std',
+      'n': '${AppStrings.tr('label_n', locale)} (n)',
+      'mean': AppStrings.tr('label_mean', locale),
+      'median': AppStrings.tr('label_median', locale),
+      'mode': AppStrings.tr('label_mode', locale),
+      'variance': AppStrings.tr('label_variance', locale),
+      'std_dev': AppStrings.tr('label_std_dev', locale),
+      'cv': AppStrings.tr('label_cv', locale),
+      'min_val': AppStrings.tr('label_min', locale),
+      'max_val': AppStrings.tr('label_max', locale),
+      'range': AppStrings.tr('label_range', locale),
+      'sum': AppStrings.tr('label_sum', locale),
+      'q1': AppStrings.tr('label_q1', locale),
+      'q2': '${AppStrings.tr('label_q2', locale)} (${AppStrings.tr('label_median', locale)})',
+      'q3': AppStrings.tr('label_q3', locale),
+      'iqr': AppStrings.tr('label_iqr', locale),
+      'skewness': 'Skewness',
+      'kurtosis': 'Kurtosis',
+      'sem': 'SEM',
       'pearson_r': 'r de Pearson',
       'r_squared': 'R²',
       'covariance': 'Covariance',
@@ -200,7 +202,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Statistiques descriptives',
+                  Text(AppStrings.tr('export_stats', locale),
                       style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 12),
                   if (stats.containsKey('is_normal')) ...[
@@ -231,8 +233,8 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                           Expanded(
                             child: Text(
                               (stats['is_normal'] == true)
-                                  ? 'Distribution normale (p = ${(stats['normality_p_value'] ?? 0.0).toStringAsFixed(4)})'
-                                  : 'Distribution non-normale (p = ${(stats['normality_p_value'] ?? 0.0).toStringAsFixed(4)})',
+                                  ? '${AppStrings.tr('analysis_normal', locale)} (p = ${(stats['normality_p_value'] ?? 0.0).toStringAsFixed(4)})'
+                                  : '${AppStrings.tr('analysis_non_normal', locale)} (p = ${(stats['normality_p_value'] ?? 0.0).toStringAsFixed(4)})',
                               style: TextStyle(
                                 color: (stats['is_normal'] == true)
                                     ? AppColors.success
@@ -273,7 +275,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                       children: [
                         const Icon(Icons.lightbulb_outline, color: AppColors.warning, size: 20),
                         const SizedBox(width: 8),
-                        Text('Interprétation',
+                        Text(AppStrings.tr('analysis_interpretation', locale),
                             style: Theme.of(context).textTheme.titleLarge),
                       ],
                     ),

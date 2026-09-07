@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/data_provider.dart';
+import '../providers/app_state.dart';
 
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});
@@ -25,7 +26,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   Future<void> _exportPdf() async {
     final data = ref.read(dataProvider);
     if (!data.hasData) {
-      setState(() => _error = 'Aucune donnée à exporter');
+      final locale = ref.read(languageProvider);
+      setState(() => _error = AppStrings.tr('export_no_data', locale));
       return;
     }
 
@@ -92,6 +94,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   @override
   Widget build(BuildContext context) {
     final data = ref.watch(dataProvider);
+    final locale = ref.watch(languageProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
 
@@ -103,7 +106,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-          Text('Export PDF', style: Theme.of(context).textTheme.headlineMedium),
+          Text(AppStrings.tr('export_title', locale), style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text('Générez un rapport PDF complet', style: TextStyle(color: Color(0xFF999999))),
           const SizedBox(height: 24),
@@ -113,25 +116,25 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Sections du rapport', style: Theme.of(context).textTheme.titleLarge),
+                  Text(AppStrings.tr('export_sections', locale), style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 16),
                   SwitchListTile(
-                    title: const Text('Statistiques descriptives'),
-                    subtitle: const Text('Moyenne, médiane, variance, quartiles...'),
+                    title: Text(AppStrings.tr('export_stats', locale)),
+                    subtitle: Text(AppStrings.tr('export_stats_desc', locale)),
                     value: _includeStats,
                     onChanged: (v) => setState(() => _includeStats = v),
                     activeColor: AppColors.primary,
                   ),
                   SwitchListTile(
-                    title: const Text('Graphiques'),
-                    subtitle: const Text('Histogramme, boxplot, nuage de points...'),
+                    title: Text(AppStrings.tr('export_charts', locale)),
+                    subtitle: Text(AppStrings.tr('export_charts_desc', locale)),
                     value: _includeCharts,
                     onChanged: (v) => setState(() => _includeCharts = v),
                     activeColor: AppColors.primary,
                   ),
                   SwitchListTile(
-                    title: const Text('Interprétation'),
-                    subtitle: const Text('Texte pédagogique automatique'),
+                    title: Text(AppStrings.tr('export_interp', locale)),
+                    subtitle: Text(AppStrings.tr('export_interp_desc', locale)),
                     value: _includeInterpretation,
                     onChanged: (v) => setState(() => _includeInterpretation = v),
                     activeColor: AppColors.primary,
@@ -151,7 +154,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                     children: [
                       Icon(Icons.info_outline, color: AppColors.accent, size: 20),
                       const SizedBox(width: 8),
-                      Text('Données actuelles', style: Theme.of(context).textTheme.titleMedium),
+                      Text(AppStrings.tr('export_current_data', locale), style: Theme.of(context).textTheme.titleMedium),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -170,7 +173,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               icon: _isLoading
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.picture_as_pdf),
-              label: Text(_isLoading ? 'Génération...' : 'Exporter en PDF'),
+              label: Text(_isLoading ? AppStrings.tr('export_generating', locale) : AppStrings.tr('export_generate', locale)),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),

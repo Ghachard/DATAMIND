@@ -95,15 +95,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   _buildSplashLogo(
                     path: 'assets/images/ispm_logo.png',
                     fallbackIcon: Icons.school,
-                    size: 120,
+                    size: 140,
                   ),
                   const SizedBox(width: 32),
-                  Container(width: 2, height: 100, color: Colors.white.withValues(alpha: 0.4)),
+                  Container(width: 2, height: 120, color: Colors.white.withValues(alpha: 0.4)),
                   const SizedBox(width: 32),
                   _buildSplashLogo(
                     path: 'assets/images/datamind_logo.jpg',
                     fallbackIcon: Icons.analytics,
-                    size: 120,
+                    size: 140,
                   ),
                 ],
               ),
@@ -173,7 +173,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Container(
       width: size,
       height: size,
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),

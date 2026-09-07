@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/data_provider.dart';
+import '../providers/app_state.dart';
 import '../widgets/bar_chart_widget.dart';
 import '../widgets/line_chart_widget.dart';
 import '../widgets/scatter_chart_widget.dart';
@@ -113,6 +114,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
   @override
   Widget build(BuildContext context) {
     final data = ref.watch(dataProvider);
+    final locale = ref.watch(languageProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
 
@@ -151,12 +153,12 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
           Text(
-            'Visualisation',
+            AppStrings.tr('charts_title', locale),
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            'Type : $dataTypeStr  |  Nature : ${dataNatureStr == 'discrete' ? 'Discret' : 'Continu'}',
+            'Type : $dataTypeStr  |  Nature : ${dataNatureStr == 'discrete' ? AppStrings.tr('label_data_nature', locale) : AppStrings.tr('label_data_nature', locale)}',
             style: TextStyle(color: Color(0xFF999999)),
           ),
           const SizedBox(height: 16),
@@ -167,7 +169,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
                   SizedBox(
                     height: 48,
                     child: availableCharts.isEmpty
-                        ? const Center(child: Text('Aucun graphique disponible', style: TextStyle(color: Color(0xFF999999), fontSize: 12)))
+                        ? Center(child: Text(AppStrings.tr('charts_empty', locale), style: TextStyle(color: Color(0xFF999999), fontSize: 12)))
                         : ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: availableCharts.length,
@@ -222,7 +224,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
                                   Icon(Icons.info_outline, color: AppColors.warning, size: 32),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Aucun graphique disponible pour ce type de données',
+                                    AppStrings.tr('charts_empty_hint', locale),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: Color(0xFF999999), fontSize: 12),
                                   ),

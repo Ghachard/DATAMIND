@@ -63,22 +63,20 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     }
   }
 
-  String _graphInfo() {
+  String _graphInfo(Locale locale) {
     final data = ref.read(dataProvider);
     final isDiscrete = data.dataNature == DataNature.discrete;
     switch (data.type) {
       case DataInputType.simple:
         return isDiscrete
-            ? 'Graphiques : Barres, Camembert, Polygone'
-            : 'Graphiques : Histogramme, Boxplot, Barres, Courbe normale';
+            ? AppStrings.tr('input_graph_simple_discrete', locale)
+            : AppStrings.tr('input_graph_simple_continuous', locale);
       case DataInputType.grouped:
-        return isDiscrete
-            ? 'Graphiques : Histogramme, Camembert, Polygone, Barres'
-            : 'Graphiques : Histogramme, Camembert, Polygone, Barres';
+        return AppStrings.tr('input_graph_grouped', locale);
       case DataInputType.classes:
-        return 'Graphiques : Histogramme jointif, Polygone, Ogive, Camembert';
+        return AppStrings.tr('input_graph_classes', locale);
       case DataInputType.bivariate:
-        return 'Graphiques : Nuage de points, Droite de régression';
+        return AppStrings.tr('input_graph_bivariate', locale);
     }
   }
 
@@ -270,7 +268,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('Une erreur est survenue. Réessayez.'), backgroundColor: AppColors.error),
         );
       }
     }
@@ -319,7 +317,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Type de données', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
+                Text(AppStrings.tr('label_data_type', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
                 const SizedBox(height: 8),
                 SegmentedButton<DataInputType>(
                   segments: [
@@ -342,7 +340,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 ),
                 if (data.type != DataInputType.classes) ...[
                   const SizedBox(height: 12),
-                  Text('Nature des données', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
+                  Text(AppStrings.tr('label_data_nature', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
                   const SizedBox(height: 8),
                   SegmentedButton<DataNature>(
                     segments: [
@@ -364,21 +362,13 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: AppColors.accent.withOpacity(0.2)),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline, size: 16, color: AppColors.accent),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _graphInfo(),
-                          style: TextStyle(fontSize: 12, color: AppColors.accent),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    _graphInfo(locale),
+                    style: TextStyle(fontSize: 12, color: AppColors.accent),
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('Nom de la série', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
+                Text(AppStrings.tr('input_serie_name', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _nameController,
@@ -392,13 +382,13 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  data.type == DataInputType.classes ? 'Ajouter une classe' : 'Ajouter une valeur',
+                  data.type == DataInputType.classes ? AppStrings.tr('input_add_class', locale) : AppStrings.tr('input_add_value', locale),
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent),
                 ),
                 const SizedBox(height: 8),
                 _buildSingleInputRow(data),
                 const SizedBox(height: 16),
-                Text('Saisie en masse', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
+                Text(AppStrings.tr('input_bulk', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _textController,
@@ -422,7 +412,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '$count entrée${count > 1 ? 's' : ''}',
+                        '$count ${count > 1 ? AppStrings.tr('input_entries_plural', locale) : AppStrings.tr('input_entries', locale)}',
                         style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -455,7 +445,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                       border: Border.all(color: AppColors.borderDark),
                     ),
                     child: Text(
-                      'Aucune valeur saisie',
+                      AppStrings.tr('input_no_data', locale),
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
                     ),
@@ -494,7 +484,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Icon(Icons.bar_chart, size: 20),
             label: Text(
-              result.isLoading ? AppStrings.tr('loading', locale) : 'Analyser',
+              result.isLoading ? AppStrings.tr('loading', locale) : AppStrings.tr('input_analyser', locale),
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             style: ElevatedButton.styleFrom(

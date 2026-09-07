@@ -52,7 +52,7 @@ class ResultNotifier extends StateNotifier<ResultState> {
         analysisId: result['analysis_id'],
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Impossible de contacter le serveur. Réessayez.');
     }
   }
 
@@ -67,7 +67,7 @@ class ResultNotifier extends StateNotifier<ResultState> {
         analysisId: result['analysis_id'],
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Impossible de contacter le serveur. Réessayez.');
     }
   }
 
@@ -82,7 +82,7 @@ class ResultNotifier extends StateNotifier<ResultState> {
         analysisId: result['analysis_id'],
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Impossible de contacter le serveur. Réessayez.');
     }
   }
 
@@ -97,7 +97,7 @@ class ResultNotifier extends StateNotifier<ResultState> {
         analysisId: result['analysis_id'],
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: 'Impossible de contacter le serveur. Réessayez.');
     }
   }
 
