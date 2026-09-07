@@ -39,20 +39,32 @@
         .body { flex:1; padding:20px 24px; overflow-y:auto; }
         .body::-webkit-scrollbar { width:6px; }
         .body::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
-        .segmented { display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:20px; }
+        .segmented { display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:12px; }
         .seg-btn { flex:1; padding:10px 0; background:none; border:none; border-right:1px solid var(--border); color:var(--text-sec); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; cursor:pointer; }
         .seg-btn:last-child { border-right:none; }
         .seg-btn:hover { background:var(--hover); }
         .seg-btn.active { background:var(--accent); color:var(--bg); }
+        .section-label { font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px; }
+        .info-bar { display:flex; align-items:center; gap:8px; padding:10px 14px; background:rgba(0,200,255,0.08); border:1px solid rgba(0,200,255,0.2); border-radius:8px; margin-bottom:16px; font-size:12px; color:var(--accent); }
+        .single-add-row { display:flex; gap:8px; margin-bottom:16px; }
+        .single-add-row input { flex:1; }
+        .add-btn { width:44px; height:44px; border:none; background:var(--accent); color:var(--bg); border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .add-btn:hover { opacity:0.9; }
+        .entry-bar { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .badge-count { padding:4px 10px; background:var(--accent); color:var(--bg); border-radius:12px; font-size:12px; font-weight:700; }
+        .entry-type { font-size:12px; color:var(--text-sec); }
+        .data-preview { padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:12px; font-family:'SF Mono','Fira Code',monospace; font-size:12px; color:var(--text); min-height:40px; white-space:pre-wrap; }
+        .empty-preview { color:var(--text-sec); }
+        .btn-analyser { width:100%; padding:16px; background:linear-gradient(135deg, var(--accent), #0088cc); color:white; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .btn-analyser:hover { opacity:0.95; }
         .field-row { display:flex; gap:12px; margin-bottom:16px; }
         .field { flex:1; }
         .field-label { display:block; font-size:12px; color:var(--text-sec); margin-bottom:6px; }
         .field-input { width:100%; height:40px; padding:0 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Inter',sans-serif; font-size:14px; outline:none; }
         .field-input:focus { border-color:var(--primary); }
         .field-input::placeholder { color:#445566; }
-        .hint-text { font-size:11px; color:#556677; margin-bottom:6px; font-family:'SF Mono','Fira Code',monospace; }
-        textarea.field-input { height:180px; padding:12px; resize:vertical; font-family:'SF Mono','Fira Code',monospace; font-size:13px; line-height:1.6; }
-        .preview-bar { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--surface); border-radius:10px; margin-top:12px; }
+        textarea.field-input { height:auto; min-height:80px; padding:12px; resize:vertical; font-family:'SF Mono','Fira Code',monospace; font-size:13px; line-height:1.6; }
+        .section-label { font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px; }
         .badge { padding:4px 10px; background:rgba(255,255,255,0.12); border-radius:6px; font-size:12px; font-weight:600; color:#FFFFFF; }
         .spacer { flex:1; }
         .btn { padding:8px 20px; background:var(--primary); border:none; border-radius:8px; color:white; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; }
@@ -123,7 +135,7 @@
         .history-bar { display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; padding:4px 0; }
         .logo-header { display:flex; align-items:center; gap:20px; padding:14px 24px; background:var(--surface); border-bottom:1px solid var(--border); }
         .logo-item { display:flex; align-items:center; gap:10px; }
-        .logo-box { width:52px; height:52px; padding:6px; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+        .logo-box { width:60px; height:60px; padding:8px; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
         .logo-box img { max-width:100%; max-height:100%; object-fit:contain; }
         .logo-fallback { width:100%; height:100%; align-items:center; justify-content:center; }
         .logo-fallback .material-symbols-outlined { font-size:28px; color:var(--primary); }
@@ -184,37 +196,39 @@
         <div class="body">
             <!-- INPUT -->
             <div class="screen active" id="s-input">
+                <div class="section-label">Type de données</div>
                 <div class="segmented" id="type-seg">
                     <button class="seg-btn active" onclick="setType('simple',this)">Simple</button>
-                    <button class="seg-btn" onclick="setType('grouped',this)">Groupée</button>
-                    <button class="seg-btn" onclick="setType('classes',this)">Classes</button>
-                    <button class="seg-btn" onclick="setType('bivariate',this)">Bivariée</button>
+                    <button class="seg-btn" onclick="setType('grouped',this)">Groupé</button>
+                    <button class="seg-btn" onclick="setType('classes',this)">Classes [a;b]</button>
+                    <button class="seg-btn" onclick="setType('bivariate',this)">Bivarié (X,Y)</button>
                 </div>
+                <div class="section-label">Nature des données</div>
                 <div class="segmented" id="nature-seg">
                     <button class="seg-btn" onclick="setDataNature('discrete',this)">Discret</button>
                     <button class="seg-btn active" onclick="setDataNature('continuous',this)">Continu</button>
                 </div>
-                <div class="field-row">
-                    <div class="field">
-                        <label class="field-label">Nom de la variable</label>
-                        <input class="field-input" type="text" id="var-name" value="Notes examen">
-                    </div>
+                <div class="info-bar" id="graph-info">
+                    <span class="material-symbols-outlined" style="font-size:16px">info</span>
+                    <span id="graph-info-text">Graphiques : Histogramme, Boxplot, Barres, Courbe normale</span>
                 </div>
-                <div class="hint-text" id="input-hint">12, 15, 18, 22, 25, 28, 30 — une valeur par ligne ou séparées par virgule</div>
-                <textarea class="field-input" id="data-input" oninput="parsePreview()">12
-15
-18
-22
-25
-28
-30</textarea>
-                <div class="preview-bar">
-                    <span class="badge" id="badge-n">N : 7</span>
-                    <span class="badge" id="badge-min">Min : 12</span>
-                    <span class="badge" id="badge-max">Max : 30</span>
-                    <div class="spacer"></div>
-                    <button class="btn" id="calc-btn" onclick="calculate()"><span class="material-symbols-outlined">calculate</span>Calculer</button>
+                <div class="section-label">Nom de la série</div>
+                <input class="field-input" type="text" id="var-name" placeholder="Ex: Notes des étudiants...">
+                <div class="section-label" id="single-add-label">Ajouter une valeur</div>
+                <div class="single-add-row" id="single-add-row">
+                    <input class="field-input" type="number" id="single-val" placeholder="Valeur xi" step="any">
+                    <button class="add-btn" onclick="addSingleValue()"><span class="material-symbols-outlined">add</span></button>
                 </div>
+                <div class="section-label">Saisie en masse</div>
+                <textarea class="field-input" id="data-input" rows="4" oninput="parsePreview()" placeholder="Ex: 12, 15, 8.5, 20, 17.3"></textarea>
+                <div class="entry-bar">
+                    <span class="badge-count" id="entry-count">0 entrée</span>
+                    <span class="entry-type" id="entry-type">Simple</span>
+                </div>
+                <div class="data-preview" id="data-preview">
+                    <span class="empty-preview">Aucune valeur saisie</span>
+                </div>
+                <button class="btn-analyser" id="calc-btn" onclick="calculate()"><span class="material-symbols-outlined">bar_chart</span> Analyser</button>
             </div>
 
             <!-- ANALYSIS -->
@@ -342,13 +356,28 @@ function setType(type, el) {
     dataType = type;
     el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
-    const hints = {
-        simple: '12, 15, 18, 22, 25, 28, 30 — une valeur par ligne ou séparées par virgule',
-        grouped: '12\t5\n15\t8\n18\t12 — valeur TAB effectif',
-        classes: '10\t20\t5\n20\t30\t8 — bas\t haut\t effectif',
-        bivariate: '10\t25\n15\t30 — X TAB Y'
+    const graphInfos = {
+        simple: dataNature === 'discrete' ? 'Graphiques : Barres, Camembert, Polygone' : 'Graphiques : Histogramme, Boxplot, Barres, Courbe normale',
+        grouped: dataNature === 'discrete' ? 'Graphiques : Histogramme, Camembert, Polygone, Barres' : 'Graphiques : Histogramme, Camembert, Polygone, Barres',
+        classes: 'Graphiques : Histogramme jointif, Polygone, Ogive, Camembert',
+        bivariate: 'Graphiques : Nuage de points, Droite de régression'
     };
-    document.getElementById('input-hint').textContent = hints[type];
+    const addLabels = {
+        simple: 'Ajouter une valeur',
+        grouped: 'Ajouter une valeur',
+        classes: 'Ajouter une classe',
+        bivariate: 'Ajouter une paire (X, Y)'
+    };
+    const placeholders = {
+        simple: 'Valeur xi',
+        grouped: 'Valeur xi',
+        classes: 'Borne inf. (a)',
+        bivariate: 'X'
+    };
+    document.getElementById('graph-info-text').textContent = graphInfos[type];
+    document.getElementById('single-add-label').textContent = addLabels[type];
+    document.getElementById('single-val').placeholder = placeholders[type];
+    document.getElementById('entry-type').textContent = {simple:'Simple', grouped:'Groupé', classes:'Classes', bivariate:'Bivarié'}[type];
     const natureSeg = document.getElementById('nature-seg');
     if (type === 'classes') {
         dataNature = 'continuous';
@@ -356,18 +385,9 @@ function setType(type, el) {
         natureSeg.children[1].classList.add('active');
         natureSeg.style.opacity = '0.5';
         natureSeg.style.pointerEvents = 'none';
-        if (!document.getElementById('nature-info')) {
-            const info = document.createElement('div');
-            info.id = 'nature-info';
-            info.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--accent)';
-            info.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">info</span>Les données en classes sont intrinsèquement continues';
-            natureSeg.parentElement.appendChild(info);
-        }
     } else {
         natureSeg.style.opacity = '1';
         natureSeg.style.pointerEvents = 'auto';
-        const info = document.getElementById('nature-info');
-        if (info) info.remove();
     }
     parsePreview();
 }
@@ -376,6 +396,26 @@ function setDataNature(nature, el) {
     dataNature = nature;
     el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
+    const graphInfos = {
+        simple: nature === 'discrete' ? 'Graphiques : Barres, Camembert, Polygone' : 'Graphiques : Histogramme, Boxplot, Barres, Courbe normale',
+        grouped: 'Graphiques : Histogramme, Camembert, Polygone, Barres',
+        bivariate: 'Graphiques : Nuage de points, Droite de régression'
+    };
+    document.getElementById('graph-info-text').textContent = graphInfos[dataType] || '';
+    parsePreview();
+}
+
+function addSingleValue() {
+    const val = document.getElementById('single-val').value.trim();
+    if (!val) return;
+    const numVal = parseFloat(val);
+    if (isNaN(numVal)) return;
+    const ta = document.getElementById('data-input');
+    const existing = ta.value.trim();
+    if (dataType === 'simple') {
+        ta.value = existing ? existing + '\n' + numVal : '' + numVal;
+    }
+    document.getElementById('single-val').value = '';
     parsePreview();
 }
 
@@ -383,29 +423,34 @@ function parsePreview() {
     const text = document.getElementById('data-input').value;
     const lines = text.split('\n').filter(l => l.trim());
     parsedValues = []; parsedFreqs = []; parsedLower = []; parsedUpper = [];
+    let previewText = '';
     for (const line of lines) {
         const parts = line.split(/[\t;,]+/).map(s => s.trim()).filter(Boolean);
-        if (dataType === 'simple') {
-            const v = parseFloat(parts[0]); if (!isNaN(v)) parsedValues.push(v);
-        } else if (dataType === 'grouped') {
-            const v = parseFloat(parts[0]), f = parseInt(parts[1]);
-            if (!isNaN(v) && !isNaN(f)) { parsedValues.push(v); parsedFreqs.push(f); }
-        } else if (dataType === 'classes') {
-            const lo = parseFloat(parts[0]), hi = parseFloat(parts[1]), f = parseInt(parts[2]);
-            if (!isNaN(lo) && !isNaN(hi) && !isNaN(f)) { parsedLower.push(lo); parsedUpper.push(hi); parsedFreqs.push(f); }
-        } else if (dataType === 'bivariate') {
-            const x = parseFloat(parts[0]), y = parseFloat(parts[1]);
-            if (!isNaN(x) && !isNaN(y)) { parsedValues.push(x); parsedFreqs.push(y); }
-        }
+        try {
+            if (dataType === 'simple') {
+                const v = parseFloat(parts[0]); if (!isNaN(v)) { parsedValues.push(v); previewText += (previewText ? ', ' : '') + v; }
+            } else if (dataType === 'grouped') {
+                const v = parseFloat(parts[0]), f = parseInt(parts[1]);
+                if (!isNaN(v) && !isNaN(f)) { parsedValues.push(v); parsedFreqs.push(f); previewText += (previewText ? '\n' : '') + v + '\t' + f; }
+            } else if (dataType === 'classes') {
+                const lo = parseFloat(parts[0]), hi = parseFloat(parts[1]), f = parseInt(parts[2]);
+                if (!isNaN(lo) && !isNaN(hi) && !isNaN(f)) { parsedLower.push(lo); parsedUpper.push(hi); parsedFreqs.push(f); previewText += (previewText ? '\n' : '') + lo + ' - ' + hi + ' (' + f + ')'; }
+            } else if (dataType === 'bivariate') {
+                const x = parseFloat(parts[0]), y = parseFloat(parts[1]);
+                if (!isNaN(x) && !isNaN(y)) { parsedValues.push(x); parsedFreqs.push(y); previewText += (previewText ? '\n' : '') + '(' + x + ', ' + y + ')'; }
+            }
+        } catch(e) {}
     }
-    let n = 0, mn = '-', mx = '-';
-    if (dataType === 'simple' && parsedValues.length) { n = parsedValues.length; mn = Math.min(...parsedValues); mx = Math.max(...parsedValues); }
-    else if (dataType === 'grouped' && parsedValues.length) { n = parsedFreqs.reduce((a,b)=>a+b,0); mn = Math.min(...parsedValues); mx = Math.max(...parsedValues); }
-    else if (dataType === 'classes' && parsedLower.length) { n = parsedFreqs.reduce((a,b)=>a+b,0); mn = Math.min(...parsedLower); mx = Math.max(...parsedUpper); }
-    else if (dataType === 'bivariate' && parsedValues.length) { n = parsedValues.length; mn = Math.min(...parsedValues); mx = Math.max(...parsedValues); }
-    document.getElementById('badge-n').textContent = 'N : ' + n;
-    document.getElementById('badge-min').textContent = 'Min : ' + mn;
-    document.getElementById('badge-max').textContent = 'Max : ' + mx;
+    let n = parsedValues.length || parsedLower.length;
+    if (dataType === 'grouped' || dataType === 'classes') n = parsedFreqs.reduce((a,b)=>a+b,0);
+    const previewEl = document.getElementById('data-preview');
+    const countEl = document.getElementById('entry-count');
+    countEl.textContent = n + ' entrée' + (n > 1 ? 's' : '');
+    if (previewText) {
+        previewEl.innerHTML = '<span style="white-space:pre-wrap">' + previewText + '</span>';
+    } else {
+        previewEl.innerHTML = '<span class="empty-preview">Aucune valeur saisie</span>';
+    }
 }
 
 // ─── STATS ───

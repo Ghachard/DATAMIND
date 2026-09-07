@@ -67,9 +67,9 @@ class LogoHeader extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 52,
-          height: 52,
-          padding: const EdgeInsets.all(6),
+          width: 60,
+          height: 60,
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isDark ? AppColors.bgDark : const Color(0xFFF0F4F8),
             borderRadius: BorderRadius.circular(10),
@@ -90,7 +90,7 @@ class LogoHeader extends StatelessWidget {
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) => Icon(
               fallbackIcon,
-              size: 28,
+              size: 32,
               color: AppColors.primary,
             ),
           ),

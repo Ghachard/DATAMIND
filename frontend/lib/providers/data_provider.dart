@@ -121,72 +121,88 @@ class DataNotifier extends StateNotifier<DataState> {
   void clear() => state = DataState(type: state.type);
 
   void parseSimpleFromText(String text) {
-    final values = text
-        .split(RegExp(r'[\n,;\t]+'))
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .map((s) => double.tryParse(s))
-        .where((d) => d != null)
-        .cast<double>()
-        .toList();
-    state = state.copyWith(values: values);
+    try {
+      final values = text
+          .split(RegExp(r'[\n,;\t]+'))
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .map((s) => double.tryParse(s))
+          .where((d) => d != null)
+          .cast<double>()
+          .toList();
+      state = state.copyWith(values: values);
+    } catch (e) {
+      state = state.copyWith(values: const []);
+    }
   }
 
   void parseGroupedFromText(String text) {
-    final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
-    final vals = <double>[];
-    final freqs = <int>[];
-    for (final line in lines) {
-      final parts = line.split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
-      if (parts.length >= 2) {
-        final v = double.tryParse(parts[0]);
-        final f = int.tryParse(parts[1]);
-        if (v != null && f != null) {
-          vals.add(v);
-          freqs.add(f);
+    try {
+      final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+      final vals = <double>[];
+      final freqs = <int>[];
+      for (final line in lines) {
+        final parts = line.split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
+        if (parts.length >= 2) {
+          final v = double.tryParse(parts[0]);
+          final f = int.tryParse(parts[1]);
+          if (v != null && f != null) {
+            vals.add(v);
+            freqs.add(f);
+          }
         }
       }
+      state = state.copyWith(values: vals, frequencies: freqs);
+    } catch (e) {
+      state = state.copyWith(values: const [], frequencies: const []);
     }
-    state = state.copyWith(values: vals, frequencies: freqs);
   }
 
   void parseClassFromText(String text) {
-    final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
-    final lower = <double>[];
-    final upper = <double>[];
-    final freqs = <int>[];
-    for (final line in lines) {
-      final parts = line.split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
-      if (parts.length >= 3) {
-        final l = double.tryParse(parts[0]);
-        final u = double.tryParse(parts[1]);
-        final f = int.tryParse(parts[2]);
-        if (l != null && u != null && f != null) {
-          lower.add(l);
-          upper.add(u);
-          freqs.add(f);
+    try {
+      final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+      final lower = <double>[];
+      final upper = <double>[];
+      final freqs = <int>[];
+      for (final line in lines) {
+        final parts = line.split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
+        if (parts.length >= 3) {
+          final l = double.tryParse(parts[0]);
+          final u = double.tryParse(parts[1]);
+          final f = int.tryParse(parts[2]);
+          if (l != null && u != null && f != null) {
+            lower.add(l);
+            upper.add(u);
+            freqs.add(f);
+          }
         }
       }
+      state = state.copyWith(lowerBounds: lower, upperBounds: upper, frequencies: freqs);
+    } catch (e) {
+      state = state.copyWith(lowerBounds: const [], upperBounds: const [], frequencies: const []);
     }
-    state = state.copyWith(lowerBounds: lower, upperBounds: upper, frequencies: freqs);
   }
 
   void parseBivariateFromText(String text) {
-    final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
-    final x = <double>[];
-    final y = <double>[];
-    for (final line in lines) {
-      final parts = line.split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
-      if (parts.length >= 2) {
-        final xv = double.tryParse(parts[0]);
-        final yv = double.tryParse(parts[1]);
-        if (xv != null && yv != null) {
-          x.add(xv);
-          y.add(yv);
+    try {
+      final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+      final x = <double>[];
+      final y = <double>[];
+      for (final line in lines) {
+        final parts = line.split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
+        if (parts.length >= 2) {
+          final xv = double.tryParse(parts[0]);
+          final yv = double.tryParse(parts[1]);
+          if (xv != null && yv != null) {
+            x.add(xv);
+            y.add(yv);
+          }
         }
       }
+      state = state.copyWith(xValues: x, yValues: y);
+    } catch (e) {
+      state = state.copyWith(xValues: const [], yValues: const []);
     }
-    state = state.copyWith(xValues: x, yValues: y);
   }
 }
 
