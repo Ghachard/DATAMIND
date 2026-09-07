@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   Container(width: 2, height: 80, color: Colors.white.withValues(alpha: 0.4)),
                   const SizedBox(width: 24),
                   _buildSplashLogo(
-                    path: 'assets/images/datamind_logo.png',
+                    path: 'assets/images/datamind_logo.jpg',
                     fallbackIcon: Icons.analytics,
                     size: 80,
                   ),

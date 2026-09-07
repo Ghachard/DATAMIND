@@ -7,7 +7,7 @@ from services.descriptive import (
     calculate_descriptive_classes, calculate_bivariate
 )
 from services.interpretation import generate_full_interpretation
-from db.database import get_db, save_analysis, get_recent_analyses, delete_old_analyses
+from db.database import get_db, save_analysis, get_recent_analyses
 from uuid import uuid4
 
 router = APIRouter(prefix="/api/stats", tags=["Statistiques"])
@@ -24,7 +24,6 @@ def descriptive_simple(data: SimpleDataInput):
     db = next(get_db())
     analysis_id = str(uuid4())
     save_analysis(db, analysis_id, "simple", data.variable_name, data.values, result)
-    delete_old_analyses(db, keep=5)
     db.close()
 
     return {
@@ -50,7 +49,6 @@ def descriptive_grouped(data: GroupedDataInput):
     analysis_id = str(uuid4())
     save_analysis(db, analysis_id, "grouped", data.variable_name, data.values, result,
                   frequencies=data.frequencies)
-    delete_old_analyses(db, keep=5)
     db.close()
 
     return {
@@ -77,7 +75,6 @@ def descriptive_classes(data: ClassIntervalDataInput):
     save_analysis(db, analysis_id, "classes", data.variable_name, [], result,
                   frequencies=data.frequencies, lower_bounds=data.lower_bounds,
                   upper_bounds=data.upper_bounds)
-    delete_old_analyses(db, keep=5)
     db.close()
 
     return {
@@ -103,7 +100,6 @@ def descriptive_bivariate(data: BivariateDataInput):
     analysis_id = str(uuid4())
     save_analysis(db, analysis_id, "bivariate", f"{data.x_name} / {data.y_name}",
                   data.x, result, y=data.y)
-    delete_old_analyses(db, keep=5)
     db.close()
 
     return {

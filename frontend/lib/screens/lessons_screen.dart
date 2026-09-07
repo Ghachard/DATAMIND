@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
 import '../providers/app_state.dart';
-import '../widgets/logo_header.dart';
 
 class LessonsScreen extends ConsumerWidget {
   const LessonsScreen({super.key});
@@ -10,13 +9,14 @@ class LessonsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(languageProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
 
     return Column(
       children: [
-        const LogoHeader(),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isMobile ? 12 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

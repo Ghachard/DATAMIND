@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/result_provider.dart';
-import '../widgets/logo_header.dart';
 
 class AnalysisScreen extends ConsumerStatefulWidget {
   const AnalysisScreen({super.key});
@@ -40,13 +39,14 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final result = ref.watch(resultProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
 
     return Column(
       children: [
-        const LogoHeader(),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isMobile ? 12 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -323,7 +323,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
         children: [
           Text(label, style: TextStyle(fontSize: 11, color: Color(0xFF999999))),
           const SizedBox(height: 2),
-          Text(value, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 14)),
+          Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
         ],
       ),
     );

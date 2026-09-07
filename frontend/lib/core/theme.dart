@@ -17,6 +17,7 @@ class AppColors {
   static const Color textDark = Color(0xFFFFFFFF);
   static const Color borderLight = Color(0xFFE0E0E0);
   static const Color borderDark = Color(0xFF1A3A5C);
+  static const Color textSecondary = Color(0xFF999999);
 }
 
 class AppTheme {
@@ -87,6 +88,25 @@ class AppTheme {
         labelStyle: const TextStyle(color: Color(0xFF999999)),
         hintStyle: const TextStyle(color: Color(0xFF666666)),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.accent;
+            }
+            return Colors.transparent;
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.bgDark;
+            }
+            return AppColors.textSecondary;
+          }),
+          side: WidgetStateProperty.all(
+            const BorderSide(color: AppColors.borderDark),
+          ),
+        ),
+      ),
     );
   }
 
@@ -156,6 +176,25 @@ class AppTheme {
         ),
         labelStyle: const TextStyle(color: Color(0xFF666666)),
         hintStyle: const TextStyle(color: Color(0xFF999999)),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.accent;
+            }
+            return Colors.transparent;
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return Colors.black;
+            }
+            return const Color(0xFF666666);
+          }),
+          side: WidgetStateProperty.all(
+            const BorderSide(color: AppColors.borderLight),
+          ),
+        ),
       ),
     );
   }

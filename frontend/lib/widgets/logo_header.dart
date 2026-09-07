@@ -47,7 +47,7 @@ class LogoHeader extends StatelessWidget {
             ),
           ),
           _buildLogo(
-            path: 'assets/images/datamind_logo.png',
+            path: 'assets/images/datamind_logo.jpg',
             fallbackIcon: Icons.analytics,
             label: 'DataMind',
             isDark: isDark,

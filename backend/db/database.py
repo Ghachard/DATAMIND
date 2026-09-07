@@ -66,10 +66,4 @@ def get_recent_analyses(db, limit: int = 5):
     return items
 
 
-def delete_old_analyses(db, keep: int = 5):
-    items = db.query(AnalysisHistory).order_by(
-        AnalysisHistory.created_at.desc()
-    ).offset(keep).all()
-    for item in items:
-        db.delete(item)
-    db.commit()
+

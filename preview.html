@@ -10,29 +10,27 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #0A1628; --surface: #0F1F3D; --surface-2: #132744;
-            --primary: #1A6FD4; --accent: #00C8FF; --success: #00E676;
+            --primary: #031540; --accent: #00C8FF; --success: #00E676;
             --warning: #FFB300; --error: #FF5252; --secondary: #AA00FF;
             --text: #E8E8E8; --text-sec: #8899AA; --border: #1A3A5C;
             --hover: rgba(26,111,212,0.12);
         }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
-        .scaffold { display:flex; height:100vh; }
-        .rail { width:72px; background:var(--surface); display:flex; flex-direction:column; align-items:center; padding:12px 0; border-right:1px solid var(--border); }
-        .rail-logo { width:40px; height:40px; background:var(--primary); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:4px; }
-        .rail-logo span { font-family:'Material Symbols Outlined'; font-size:22px; color:white; font-variation-settings:'FILL' 1,'wght' 600; }
-        .rail-brand { font-size:10px; font-weight:700; color:var(--primary); letter-spacing:0.5px; margin-bottom:20px; }
-        .rail-items { display:flex; flex-direction:column; gap:2px; flex:1; }
-        .rail-item { width:56px; padding:8px 0 6px; display:flex; flex-direction:column; align-items:center; gap:2px; border-radius:16px; cursor:pointer; border:none; background:none; color:var(--text-sec); font-family:'Inter',sans-serif; }
-        .rail-item:hover { background:var(--hover); }
-        .rail-item.active { background:rgba(26,111,212,0.18); color:var(--accent); }
-        .rail-item .material-symbols-outlined { font-size:24px; }
-        .rail-item.active .material-symbols-outlined { font-variation-settings:'FILL' 1,'wght' 500; }
-        .rail-item-label { font-size:11px; font-weight:500; }
-        .rail-bottom { display:flex; flex-direction:column; gap:2px; }
-        .rail-icon-btn { width:40px; height:40px; border-radius:20px; border:none; background:none; color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; }
-        .rail-icon-btn:hover { background:var(--hover); }
-        .rail-icon-btn .material-symbols-outlined { font-size:22px; }
-        .main { flex:1; display:flex; flex-direction:column; min-width:0; }
+        .scaffold { display:flex; flex-direction:column; height:100vh; }
+        .topbar { display:flex; align-items:center; gap:6px; padding:0 16px; height:52px; background:var(--surface); border-bottom:1px solid var(--border); }
+        .topbar-nav { display:flex; align-items:center; gap:2px; flex:1; overflow-x:auto; }
+        .topbar-nav::-webkit-scrollbar { display:none; }
+        .topbar-item { display:flex; align-items:center; gap:6px; padding:7px 14px; border-radius:10px; cursor:pointer; border:none; background:none; color:var(--text-sec); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; white-space:nowrap; }
+        .topbar-item:hover { background:var(--hover); }
+        .topbar-item.active { background:rgba(26,111,212,0.18); color:var(--accent); }
+        .topbar-item .material-symbols-outlined { font-size:20px; }
+        .topbar-item.active .material-symbols-outlined { font-variation-settings:'FILL' 1,'wght' 500; }
+        .topbar-sep { width:1px; height:28px; background:var(--border); margin:0 6px; }
+        .topbar-actions { display:flex; align-items:center; gap:4px; }
+        .topbar-btn { width:36px; height:36px; border-radius:18px; border:none; background:none; color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .topbar-btn:hover { background:var(--hover); }
+        .topbar-btn .material-symbols-outlined { font-size:20px; }
+        .main { flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden; }
         .appbar { height:56px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; }
         .appbar-title { font-size:18px; font-weight:600; }
         .appbar-spacer { flex:1; }
@@ -45,7 +43,7 @@
         .seg-btn { flex:1; padding:10px 0; background:none; border:none; border-right:1px solid var(--border); color:var(--text-sec); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; cursor:pointer; }
         .seg-btn:last-child { border-right:none; }
         .seg-btn:hover { background:var(--hover); }
-        .seg-btn.active { background:var(--primary); color:white; }
+        .seg-btn.active { background:var(--accent); color:var(--bg); }
         .field-row { display:flex; gap:12px; margin-bottom:16px; }
         .field { flex:1; }
         .field-label { display:block; font-size:12px; color:var(--text-sec); margin-bottom:6px; }
@@ -55,7 +53,7 @@
         .hint-text { font-size:11px; color:#556677; margin-bottom:6px; font-family:'SF Mono','Fira Code',monospace; }
         textarea.field-input { height:180px; padding:12px; resize:vertical; font-family:'SF Mono','Fira Code',monospace; font-size:13px; line-height:1.6; }
         .preview-bar { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--surface); border-radius:10px; margin-top:12px; }
-        .badge { padding:4px 10px; background:rgba(26,111,212,0.12); border-radius:6px; font-size:12px; font-weight:600; color:var(--primary); }
+        .badge { padding:4px 10px; background:rgba(255,255,255,0.12); border-radius:6px; font-size:12px; font-weight:600; color:#FFFFFF; }
         .spacer { flex:1; }
         .btn { padding:8px 20px; background:var(--primary); border:none; border-radius:8px; color:white; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; }
         .btn:hover { opacity:0.88; }
@@ -68,7 +66,7 @@
         .stat-grid { display:flex; flex-wrap:wrap; gap:8px; }
         .stat-cell { padding:10px 14px; background:rgba(26,111,212,0.08); border-radius:8px; min-width:100px; }
         .stat-cell-label { font-size:11px; color:var(--text-sec); margin-bottom:2px; }
-        .stat-cell-value { font-size:15px; font-weight:700; color:var(--primary); font-variant-numeric:tabular-nums; }
+        .stat-cell-value { font-size:15px; font-weight:700; color:#FFFFFF; font-variant-numeric:tabular-nums; }
         .interp-box { background:rgba(26,111,212,0.06); border-left:3px solid var(--primary); border-radius:0 8px 8px 0; padding:16px 18px; font-size:13px; line-height:1.75; color:var(--text-sec); }
         .interp-box strong { color:var(--text); font-weight:600; }
         .screen { display:none; }
@@ -134,59 +132,53 @@
         .logo-sub { font-size:9px; color:var(--text-sec); }
         .logo-divider { width:1px; height:48px; background:linear-gradient(to bottom, transparent, var(--border), transparent); }
         .logo-spacer { flex:1; }
-        .logo-badge { display:flex; align-items:center; gap:6px; padding:6px 12px; background:rgba(26,111,212,0.1); border:1px solid rgba(26,111,212,0.3); border-radius:8px; font-size:11px; font-weight:600; color:var(--primary); }
+        .logo-badge { display:flex; align-items:center; gap:6px; padding:6px 12px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); border-radius:8px; font-size:11px; font-weight:600; color:#FFFFFF; }
         .logo-dot { width:8px; height:8px; background:var(--success); border-radius:50%; }
     </style>
 </head>
 <body>
 <div class="scaffold">
-    <nav class="rail">
-        <div class="rail-logo"><span class="material-symbols-outlined">analytics</span></div>
-        <div class="rail-brand">DM</div>
-        <div class="rail-items">
-            <button class="rail-item active" onclick="show('input',this)"><span class="material-symbols-outlined">table_chart</span><span class="rail-item-label">Saisie</span></button>
-            <button class="rail-item" onclick="show('analysis',this)"><span class="material-symbols-outlined">bar_chart</span><span class="rail-item-label">Analyse</span></button>
-            <button class="rail-item" onclick="show('charts',this)"><span class="material-symbols-outlined">show_chart</span><span class="rail-item-label">Graphiques</span></button>
-            <button class="rail-item" onclick="show('probability',this)"><span class="material-symbols-outlined">functions</span><span class="rail-item-label">Probabilites</span></button>
-            <button class="rail-item" onclick="show('lessons',this)"><span class="material-symbols-outlined">menu_book</span><span class="rail-item-label">Lecons</span></button>
-            <button class="rail-item" onclick="show('export',this)"><span class="material-symbols-outlined">picture_as_pdf</span><span class="rail-item-label">Export</span></button>
+    <div class="logo-header">
+        <div class="logo-item">
+            <div class="logo-box">
+                <img src="assets/images/ispm_logo.png" alt="ISPM" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="logo-fallback" style="display:none"><span class="material-symbols-outlined">school</span></div>
+            </div>
+            <div class="logo-text">
+                <div class="logo-name">ISPM</div>
+                <div class="logo-sub">Institut Supérieur<br>Polytechnique</div>
+            </div>
         </div>
-        <div class="rail-bottom">
-            <button class="rail-icon-btn" title="Theme" onclick="toggleTheme()"><span class="material-symbols-outlined" id="theme-icon">dark_mode</span></button>
-            <button class="rail-icon-btn" title="Langue" onclick="toggleLang()"><span class="material-symbols-outlined">translate</span></button>
+        <div class="logo-divider"></div>
+        <div class="logo-item">
+            <div class="logo-box">
+                    <img src="assets/images/datamind_logo.jpg" alt="DataMind" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="logo-fallback" style="display:none"><span class="material-symbols-outlined">analytics</span></div>
+            </div>
+            <div class="logo-text">
+                <div class="logo-name">DataMind</div>
+                <div class="logo-sub">Statistique<br>Pédagogique</div>
+            </div>
         </div>
-    </nav>
+        <div class="logo-spacer"></div>
+    </div>
+    <div class="topbar">
+        <button class="topbar-item active" onclick="show('input',this)"><span class="material-symbols-outlined">table_chart</span>Saisie</button>
+        <button class="topbar-item" onclick="show('analysis',this)"><span class="material-symbols-outlined">bar_chart</span>Analyse</button>
+        <button class="topbar-item" onclick="show('charts',this)"><span class="material-symbols-outlined">show_chart</span>Graphiques</button>
+        <button class="topbar-item" onclick="show('probability',this)"><span class="material-symbols-outlined">functions</span>Probabilités</button>
+        <button class="topbar-item" onclick="show('lessons',this)"><span class="material-symbols-outlined">menu_book</span>Leçons</button>
+        <button class="topbar-item" onclick="show('export',this)"><span class="material-symbols-outlined">picture_as_pdf</span>Export</button>
+        <div class="topbar-actions">
+            <button class="topbar-btn" title="Thème" onclick="toggleTheme()"><span class="material-symbols-outlined" id="theme-icon">dark_mode</span></button>
+            <button class="topbar-btn" title="Langue" onclick="toggleLang()"><span class="material-symbols-outlined">translate</span></button>
+        </div>
+    </div>
 
     <div class="main">
-        <div class="logo-header">
-            <div class="logo-item">
-                <div class="logo-box">
-                    <img src="assets/images/ispm_logo.png" alt="ISPM" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                    <div class="logo-fallback" style="display:none"><span class="material-symbols-outlined">school</span></div>
-                </div>
-                <div class="logo-text">
-                    <div class="logo-name">ISPM</div>
-                    <div class="logo-sub">Institut Supérieur<br>Polytechnique</div>
-                </div>
-            </div>
-            <div class="logo-divider"></div>
-            <div class="logo-item">
-                <div class="logo-box">
-                    <img src="assets/images/datamind_logo.png" alt="DataMind" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                    <div class="logo-fallback" style="display:none"><span class="material-symbols-outlined">analytics</span></div>
-                </div>
-                <div class="logo-text">
-                    <div class="logo-name">DataMind</div>
-                    <div class="logo-sub">Statistique<br>Pédagogique</div>
-                </div>
-            </div>
-            <div class="logo-spacer"></div>
-        </div>
         <div class="appbar">
             <div class="appbar-title" id="appbar-title">Saisie des donnees</div>
             <div class="appbar-spacer"></div>
-            <button class="appbar-btn" title="Rechercher"><span class="material-symbols-outlined">search</span></button>
-            <button class="appbar-btn" title="Plus"><span class="material-symbols-outlined">more_vert</span></button>
         </div>
 
         <div class="body">
@@ -252,9 +244,15 @@
 
             <!-- PROBABILITY -->
             <div class="screen" id="s-probability">
-                <div class="prob-row">
-                    <div class="law-nav" id="law-nav"></div>
-                    <div class="prob-content" id="prob-content"></div>
+                <div id="prob-empty" class="empty-msg">
+                    <span class="material-symbols-outlined" style="font-size:48px;color:#666">functions</span><br><br>
+                    Saisissez des données d'abord pour voir les lois disponibles
+                </div>
+                <div id="prob-body" style="display:none">
+                    <div class="prob-row">
+                        <div class="law-nav" id="law-nav"></div>
+                        <div class="prob-content" id="prob-content"></div>
+                    </div>
                 </div>
             </div>
 
@@ -266,7 +264,11 @@
 
             <!-- EXPORT -->
             <div class="screen" id="s-export">
-                <div class="card">
+                <div id="export-empty" class="empty-msg">
+                    <span class="material-symbols-outlined" style="font-size:48px;color:#666">picture_as_pdf</span><br><br>
+                    Saisissez et calculez des données d'abord pour exporter un rapport
+                </div>
+                <div id="export-body" style="display:none">
                     <div class="card-header"><span class="material-symbols-outlined">tune</span><div class="card-title">Sections du rapport</div></div>
                     <label class="toggle-row"><input type="checkbox" checked class="toggle" id="exp-stats"><div><div class="toggle-label">Statistiques descriptives</div><div class="toggle-desc">Moyenne, médiane, variance, quartiles...</div></div></label>
                     <label class="toggle-row"><input type="checkbox" checked class="toggle" id="exp-charts"><div><div class="toggle-label">Graphiques</div><div class="toggle-desc">Histogramme, boxplot, nuage de points...</div></div></label>
@@ -308,7 +310,7 @@ const titles = { fr: {input:'Saisie des données',analysis:'Analyse statistique'
 
 function show(id, el) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.rail-item').forEach(r => r.classList.remove('active'));
+    document.querySelectorAll('.topbar-item').forEach(r => r.classList.remove('active'));
     document.getElementById('s-' + id).classList.add('active');
     document.getElementById('appbar-title').textContent = titles[lang][id];
     if (el) el.classList.add('active');
@@ -533,7 +535,7 @@ function calculate() {
     if (history.length > 5) history.pop();
 
     renderAnalysis();
-    show('analysis', document.querySelectorAll('.rail-item')[1]);
+    show('analysis', document.querySelectorAll('.topbar-item')[1]);
 }
 
 function renderAnalysis() {
@@ -962,6 +964,15 @@ const laws = [
 ];
 
 function renderLaws() {
+    const empty = document.getElementById('prob-empty');
+    const body = document.getElementById('prob-body');
+    if (!currentStats) {
+        empty.style.display = 'block';
+        body.style.display = 'none';
+        return;
+    }
+    empty.style.display = 'none';
+    body.style.display = 'block';
     const nav = document.getElementById('law-nav');
     const available = laws.filter(l => l.natures.includes(dataNature));
     nav.innerHTML = available.map((l,i) => `<button class="law-nav-item${i===0?' active':''}" onclick="selectLaw('${l.id}',this)">${l.name}</button>`).join('');

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/data_provider.dart';
-import '../widgets/logo_header.dart';
+import '../providers/result_provider.dart';
 
 class ProbabilityScreen extends ConsumerStatefulWidget {
   const ProbabilityScreen({super.key});
@@ -37,6 +37,34 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
   void initState() {
     super.initState();
     _initControllers();
+  }
+
+  void _autoFillFromStats(Map<String, dynamic>? stats) {
+    if (stats == null) return;
+
+    final mean = stats['mean'];
+    final stdDev = stats['std_dev'];
+    final variance = stats['variance'];
+    final n = stats['n'];
+    final min = stats['min'];
+    final max = stats['max'];
+
+    if (mean != null) _controllers['normal_mu']?.text = mean.toStringAsFixed(2);
+    if (stdDev != null) _controllers['normal_sigma']?.text = stdDev.toStringAsFixed(2);
+    if (min != null) _controllers['uniform_a']?.text = min.toStringAsFixed(2);
+    if (max != null) _controllers['uniform_b']?.text = max.toStringAsFixed(2);
+    if (n != null) {
+      _controllers['binomial_n']?.text = n.toString();
+      _controllers['chi2_k']?.text = (n > 1 ? n - 1 : 1).toString();
+    }
+    if (mean != null && mean > 0) _controllers['poisson_lambda']?.text = mean.toStringAsFixed(2);
+    if (variance != null && mean != null && mean > 0) {
+      final p = variance / mean;
+      if (p >= 0 && p <= 1) {
+        _controllers['binomial_p']?.text = p.toStringAsFixed(2);
+        _controllers['bernoulli_p']?.text = p.toStringAsFixed(2);
+      }
+    }
   }
 
   void _initControllers() {
@@ -106,204 +134,197 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final data = ref.watch(dataProvider);
-    final natureStr = data.dataNature == DataNature.discrete ? 'discrete' : 'continuous';
-    final availableLaws = _laws.where((l) => l['nature'] == natureStr).toList();
-    
-    if (!_laws.any((l) => l['id'] == _selectedLaw && l['nature'] == natureStr)) {
-      if (availableLaws.isNotEmpty) _selectedLaw = availableLaws.first['id'];
-    }
-    
-    final currentLaw = availableLaws.isNotEmpty
-        ? availableLaws.firstWhere((l) => l['id'] == _selectedLaw)
-        : _laws.first;
-
+  Widget _buildLawContent(Map<String, dynamic> currentLaw, ResultState result) {
     return Column(
       children: [
-        const LogoHeader(),
-        Expanded(
+        Card(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Lois de probabilité', style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: Row(
-              children: [
-                SizedBox(
-                  width: 180,
-                  child: availableLaws.isEmpty
-                      ? const Center(child: Text('Aucune loi disponible'))
-                      : ListView.builder(
-                    itemCount: availableLaws.length,
-                    itemBuilder: (context, index) {
-                      final law = availableLaws[index];
-                      final isSelected = _selectedLaw == law['id'];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 6),
-                        color: isSelected ? AppColors.secondary : null,
-                        child: ListTile(
-                          title: Text(law['name'],
-                              style: TextStyle(
-                                  color: isSelected ? Colors.white : null,
-                                  fontWeight: isSelected ? FontWeight.w600 : null,
-                                  fontSize: 14)),
-                          onTap: () => setState(() {
-                            _selectedLaw = law['id'];
-                            _result = null;
-                            _chartImage = null;
-                          }),
-                          dense: true,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                      );
-                    },
+                Text('Paramètres — ${currentLaw['name']}',
+                    style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 12),
+                ...currentLaw['params'].asMap().entries.map((entry) {
+                  final key = currentLaw['paramKeys'][entry.key];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: TextField(
+                      controller: _controllers['${_selectedLaw}_$key'],
+                      decoration: InputDecoration(
+                        labelText: entry.value,
+                        isDense: true,
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  );
+                }),
+                if (result.hasResult)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.auto_awesome, size: 16, color: AppColors.accent),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Paramètres pré-remplis avec vos données. Vous pouvez les modifier.',
+                              style: TextStyle(fontSize: 12, color: AppColors.accent),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                const Divider(),
+                Text('Calculs', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 400) {
+                      return Column(
+                        children: [
+                          TextField(
+                            controller: _xController,
+                            decoration: const InputDecoration(
+                                labelText: 'P(X = x) ou P(X ≤ x)', isDense: true),
+                            keyboardType: TextInputType.number,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
                             children: [
-                              Text('Paramètres — ${currentLaw['name']}',
-                                  style: Theme.of(context).textTheme.titleLarge),
-                              const SizedBox(height: 12),
-                              ...currentLaw['params'].asMap().entries.map((entry) {
-                                final key = currentLaw['paramKeys'][entry.key];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: TextField(
-                                    controller: _controllers['${_selectedLaw}_$key'],
-                                    decoration: InputDecoration(
-                                      labelText: entry.value,
-                                      isDense: true,
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                  ),
-                                );
-                              }),
-                              const Divider(),
-                              Text('Calculs', style: Theme.of(context).textTheme.titleMedium),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _xController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'P(X = x) ou P(X ≤ x)', isDense: true),
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _xMinController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'x min (intervalle)', isDense: true),
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _xMaxController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'x max (intervalle)', isDense: true),
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                ],
+                              Expanded(
+                                child: TextField(
+                                  controller: _xMinController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'x min', isDense: true),
+                                  keyboardType: TextInputType.number,
+                                ),
                               ),
-                              const SizedBox(height: 12),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                  onPressed: _isLoading ? null : _calculate,
-                                  icon: const Icon(Icons.calculate),
-                                  label: Text(_isLoading ? 'Calcul...' : 'Calculer'),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _xMaxController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'x max', isDense: true),
+                                  keyboardType: TextInputType.number,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      if (_error != null)
-                        Card(
-                          color: AppColors.error.withOpacity(0.1),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.error_outline, color: AppColors.error),
-                                const SizedBox(width: 8),
-                                Expanded(child: Text(_error!, style: TextStyle(color: AppColors.error))),
-                              ],
-                            ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _xController,
+                            decoration: const InputDecoration(
+                                labelText: 'P(X = x) ou P(X ≤ x)', isDense: true),
+                            keyboardType: TextInputType.number,
                           ),
                         ),
-                      if (_result != null) ...[
-                        const SizedBox(height: 12),
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Résultats', style: Theme.of(context).textTheme.titleLarge),
-                                const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    if (_result!['p_equal'] != null)
-                                      _resultChip('P(X = x)', _result!['p_equal']),
-                                    if (_result!['p_less_equal'] != null)
-                                      _resultChip('P(X ≤ x)', _result!['p_less_equal']),
-                                    if (_result!['p_interval'] != null)
-                                      _resultChip('P(a ≤ X ≤ b)', _result!['p_interval']),
-                                    _resultChip('Espérance', _result!['mean']),
-                                    _resultChip('Variance', _result!['variance']),
-                                    _resultChip('Écart-type', _result!['std_dev']),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                if (_result!['interpretation'] != null)
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.secondary.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(_result!['interpretation']),
-                                  ),
-                              ],
-                            ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _xMinController,
+                            decoration: const InputDecoration(
+                                labelText: 'x min', isDense: true),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _xMaxController,
+                            decoration: const InputDecoration(
+                                labelText: 'x max', isDense: true),
+                            keyboardType: TextInputType.number,
                           ),
                         ),
                       ],
-                      ],
-                    ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _calculate,
+                    icon: const Icon(Icons.calculate),
+                    label: Text(_isLoading ? 'Calcul...' : 'Calculer'),
                   ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_error != null)
+          Card(
+            color: AppColors.error.withOpacity(0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: AppColors.error),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_error!, style: TextStyle(color: AppColors.error))),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    ),
-  ],
-);
+          ),
+        if (_result != null) ...[
+          const SizedBox(height: 12),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Résultats', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (_result!['p_equal'] != null)
+                        _resultChip('P(X = x)', _result!['p_equal']),
+                      if (_result!['p_less_equal'] != null)
+                        _resultChip('P(X ≤ x)', _result!['p_less_equal']),
+                      if (_result!['p_interval'] != null)
+                        _resultChip('P(a ≤ X ≤ b)', _result!['p_interval']),
+                      _resultChip('Espérance', _result!['mean']),
+                      _resultChip('Variance', _result!['variance']),
+                      _resultChip('Écart-type', _result!['std_dev']),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  if (_result!['interpretation'] != null)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(_result!['interpretation']),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   Widget _resultChip(String label, dynamic value) {
@@ -322,6 +343,135 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
           Text(display, style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w700)),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = ref.watch(dataProvider);
+    final result = ref.watch(resultProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final natureStr = data.dataNature == DataNature.discrete ? 'discrete' : 'continuous';
+    final availableLaws = _laws.where((l) => l['nature'] == natureStr).toList();
+
+    if (!_laws.any((l) => l['id'] == _selectedLaw && l['nature'] == natureStr)) {
+      if (availableLaws.isNotEmpty) _selectedLaw = availableLaws.first['id'];
+    }
+
+    if (result.hasResult) {
+      _autoFillFromStats(result.stats);
+    }
+
+    final currentLaw = availableLaws.isNotEmpty
+        ? availableLaws.firstWhere((l) => l['id'] == _selectedLaw)
+        : _laws.first;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.all(isMobile ? 12 : 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Lois de probabilité', style: Theme.of(context).textTheme.headlineMedium),
+                const SizedBox(height: 16),
+                if (!data.hasData)
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.functions, size: 64, color: Color(0xFF666666)),
+                          const SizedBox(height: 12),
+                          Text(
+                            ref.read(dataProvider).hasData
+                                ? 'Sélectionnez une loi'
+                                : 'Saisissez des données d\'abord',
+                            style: TextStyle(color: Color(0xFF999999)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (isMobile)
+                  Expanded(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 48,
+                          child: availableLaws.isEmpty
+                              ? const Center(child: Text('Aucune loi disponible', style: TextStyle(color: Color(0xFF999999), fontSize: 12)))
+                              : ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: availableLaws.length,
+                                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                                  itemBuilder: (context, index) {
+                                    final law = availableLaws[index];
+                                    final isSelected = _selectedLaw == law['id'];
+                                    return ChoiceChip(
+                                      label: Text(law['name'], style: TextStyle(fontSize: 12)),
+                                      selected: isSelected,
+                                      onSelected: (_) => setState(() {
+                                        _selectedLaw = law['id'];
+                                        _result = null;
+                                        _chartImage = null;
+                                      }),
+                                      selectedColor: AppColors.secondary,
+                                    );
+                                  },
+                                ),
+                        ),
+                        const SizedBox(height: 12),
+                        Expanded(child: _buildLawContent(currentLaw, result)),
+                      ],
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 180,
+                          child: availableLaws.isEmpty
+                              ? const Center(child: Text('Aucune loi disponible'))
+                              : ListView.builder(
+                                  itemCount: availableLaws.length,
+                                  itemBuilder: (context, index) {
+                                    final law = availableLaws[index];
+                                    final isSelected = _selectedLaw == law['id'];
+                                    return Card(
+                                      margin: const EdgeInsets.only(bottom: 6),
+                                      color: isSelected ? AppColors.secondary : null,
+                                      child: ListTile(
+                                        title: Text(law['name'],
+                                            style: TextStyle(
+                                                color: isSelected ? Colors.white : null,
+                                                fontWeight: isSelected ? FontWeight.w600 : null,
+                                                fontSize: 14)),
+                                        onTap: () => setState(() {
+                                          _selectedLaw = law['id'];
+                                          _result = null;
+                                          _chartImage = null;
+                                        }),
+                                        dense: true,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(child: _buildLawContent(currentLaw, result)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

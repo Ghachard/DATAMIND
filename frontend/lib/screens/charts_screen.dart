@@ -9,7 +9,6 @@ import '../widgets/scatter_chart_widget.dart';
 import '../widgets/pie_chart_widget.dart';
 import '../widgets/box_plot_widget.dart';
 import '../widgets/violin_chart_widget.dart';
-import '../widgets/logo_header.dart';
 
 class ChartsScreen extends ConsumerStatefulWidget {
   const ChartsScreen({super.key});
@@ -114,6 +113,8 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
   @override
   Widget build(BuildContext context) {
     final data = ref.watch(dataProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
 
     final dataTypeStr = switch (data.type) {
       DataInputType.simple => 'simple',
@@ -143,10 +144,9 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
 
     return Column(
       children: [
-        const LogoHeader(),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isMobile ? 12 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -160,73 +160,120 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
             style: TextStyle(color: Color(0xFF999999)),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 220,
-                  child: availableCharts.isEmpty
-                      ? Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.info_outline, color: AppColors.warning, size: 32),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Aucun graphique disponible pour ce type de données',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Color(0xFF999999), fontSize: 12),
-                                ),
-                              ],
-                            ),
+          if (isMobile)
+            Expanded(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 48,
+                    child: availableCharts.isEmpty
+                        ? const Center(child: Text('Aucun graphique disponible', style: TextStyle(color: Color(0xFF999999), fontSize: 12)))
+                        : ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: availableCharts.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            itemBuilder: (context, index) {
+                              final chart = availableCharts[index];
+                              final isSelected = _selectedChart == chart['id'];
+                              return ChoiceChip(
+                                label: Text(chart['name'] as String, style: TextStyle(fontSize: 12)),
+                                selected: isSelected,
+                                onSelected: data.hasData ? (_) => _generateChart(chart['id']) : null,
+                                selectedColor: AppColors.primary,
+                              );
+                            },
                           ),
-                        )
-                      : ListView.builder(
-                          itemCount: availableCharts.length,
-                          itemBuilder: (context, index) {
-                            final chart = availableCharts[index];
-                            final isSelected = _selectedChart == chart['id'];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              color: isSelected ? AppColors.primary : null,
-                              child: ListTile(
-                                leading: Icon(chart['icon'] as IconData,
-                                    color: isSelected ? Colors.white : AppColors.accent),
-                                title: Text(chart['name'] as String,
-                                    style: TextStyle(
-                                        color: isSelected ? Colors.white : null,
-                                        fontWeight: isSelected ? FontWeight.w600 : null)),
-                                onTap: data.hasData ? () => _generateChart(chart['id']) : null,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                            );
-                          },
-                        ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Card(
-                    child: _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : _error != null
-                            ? Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.error_outline, color: AppColors.error, size: 48),
-                                    const SizedBox(height: 12),
-                                    Text(_error!, style: TextStyle(color: AppColors.error)),
-                                  ],
-                                ),
-                              )
-                            : _buildChart(),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: Card(
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : _error != null
+                              ? Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+                                      const SizedBox(height: 12),
+                                      Text(_error!, style: TextStyle(color: AppColors.error)),
+                                    ],
+                                  ),
+                                )
+                              : _buildChart(),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Expanded(
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 220,
+                    child: availableCharts.isEmpty
+                        ? Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.info_outline, color: AppColors.warning, size: 32),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Aucun graphique disponible pour ce type de données',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Color(0xFF999999), fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: availableCharts.length,
+                            itemBuilder: (context, index) {
+                              final chart = availableCharts[index];
+                              final isSelected = _selectedChart == chart['id'];
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                color: isSelected ? AppColors.primary : null,
+                                child: ListTile(
+                                  leading: Icon(chart['icon'] as IconData,
+                                      color: isSelected ? Colors.white : AppColors.accent),
+                                  title: Text(chart['name'] as String,
+                                      style: TextStyle(
+                                          color: isSelected ? Colors.white : null,
+                                          fontWeight: isSelected ? FontWeight.w600 : null)),
+                                  onTap: data.hasData ? () => _generateChart(chart['id']) : null,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Card(
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : _error != null
+                              ? Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+                                      const SizedBox(height: 12),
+                                      Text(_error!, style: TextStyle(color: AppColors.error)),
+                                    ],
+                                  ),
+                                )
+                              : _buildChart(),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
               ],
             ),
           ),

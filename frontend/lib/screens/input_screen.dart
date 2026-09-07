@@ -4,7 +4,6 @@ import '../core/theme.dart';
 import '../providers/data_provider.dart';
 import '../providers/app_state.dart';
 import '../providers/result_provider.dart';
-import '../widgets/logo_header.dart';
 
 class InputScreen extends ConsumerStatefulWidget {
   const InputScreen({super.key});
@@ -28,9 +27,33 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     super.dispose();
   }
 
+  bool _validateInput(String text, DataInputType type) {
+    final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    if (lines.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez saisir des données.')),
+      );
+      return false;
+    }
+
+    final sample = lines.first.trim();
+    final firstValue = sample.split(RegExp(r'[\t;,]+')).first.trim();
+
+    if (double.tryParse(firstValue) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Valeur non numérique détectée : "$firstValue". Entrez des nombres.')),
+      );
+      return false;
+    }
+    return true;
+  }
+
   void _parseData() {
     final data = ref.read(dataProvider);
     final text = _textController.text;
+
+    if (!_validateInput(text, data.type)) return;
+
     switch (data.type) {
       case DataInputType.simple:
         ref.read(dataProvider.notifier).parseSimpleFromText(text);
@@ -48,7 +71,9 @@ class _InputScreenState extends ConsumerState<InputScreen> {
   }
 
   Future<void> _calculate() async {
+    _parseData();
     final data = ref.read(dataProvider);
+    if (data.values.isEmpty && data.xValues.isEmpty) return;
     ref.read(dataProvider.notifier).setVariableName(_nameController.text);
     ref.read(dataProvider.notifier).setXName(_xNameController.text);
     ref.read(dataProvider.notifier).setYName(_yNameController.text);
@@ -95,13 +120,14 @@ class _InputScreenState extends ConsumerState<InputScreen> {
   Widget build(BuildContext context) {
     final data = ref.watch(dataProvider);
     final result = ref.watch(resultProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
 
     return Column(
       children: [
-        const LogoHeader(),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isMobile ? 12 : 24),
             child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -110,46 +136,34 @@ class _InputScreenState extends ConsumerState<InputScreen> {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: SegmentedButton<DataInputType>(
-                  segments: [
-                    ButtonSegment(value: DataInputType.simple, label: Text('Simple')),
-                    ButtonSegment(value: DataInputType.grouped, label: Text('Groupée')),
-                    ButtonSegment(value: DataInputType.classes, label: Text('Classes')),
-                    ButtonSegment(value: DataInputType.bivariate, label: Text('Bivariée')),
-                  ],
-                  selected: {data.type},
-                  onSelectionChanged: (selected) {
-                    ref.read(dataProvider.notifier).setType(selected.first);
-                    if (selected.first == DataInputType.classes) {
-                      ref.read(dataProvider.notifier).setDataNature(DataNature.continuous);
-                    }
-                    _textController.clear();
-                  },
-                ),
-              ),
+          SegmentedButton<DataInputType>(
+            segments: [
+              ButtonSegment(value: DataInputType.simple, label: Text(isMobile ? 'Simp.' : 'Simple')),
+              ButtonSegment(value: DataInputType.grouped, label: Text(isMobile ? 'Grp.' : 'Groupée')),
+              ButtonSegment(value: DataInputType.classes, label: Text(isMobile ? 'Clas.' : 'Classes')),
+              ButtonSegment(value: DataInputType.bivariate, label: Text(isMobile ? 'Biv.' : 'Bivariée')),
             ],
+            selected: {data.type},
+            onSelectionChanged: (selected) {
+              ref.read(dataProvider.notifier).setType(selected.first);
+              if (selected.first == DataInputType.classes) {
+                ref.read(dataProvider.notifier).setDataNature(DataNature.continuous);
+              }
+              _textController.clear();
+            },
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: SegmentedButton<DataNature>(
-                  segments: [
-                    ButtonSegment(value: DataNature.discrete, label: Text('Discret')),
-                    ButtonSegment(value: DataNature.continuous, label: Text('Continu')),
-                  ],
-                  selected: {data.dataNature},
-                  onSelectionChanged: data.type == DataInputType.classes
-                      ? null
-                      : (selected) {
-                          ref.read(dataProvider.notifier).setDataNature(selected.first);
-                        },
-                ),
-              ),
+          SegmentedButton<DataNature>(
+            segments: [
+              ButtonSegment(value: DataNature.discrete, label: Text('Discret')),
+              ButtonSegment(value: DataNature.continuous, label: Text('Continu')),
             ],
+            selected: {data.dataNature},
+            onSelectionChanged: data.type == DataInputType.classes
+                ? null
+                : (selected) {
+                    ref.read(dataProvider.notifier).setDataNature(selected.first);
+                  },
           ),
           if (data.type == DataInputType.classes)
             Padding(
@@ -166,32 +180,60 @@ class _InputScreenState extends ConsumerState<InputScreen> {
               ),
             ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
+          if (isMobile && data.type == DataInputType.bivariate)
+            Column(
+              children: [
+                TextField(
                   controller: _nameController,
                   decoration: const InputDecoration(labelText: 'Nom de la variable'),
                 ),
-              ),
-              if (data.type == DataInputType.bivariate) ...[
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _xNameController,
-                    decoration: const InputDecoration(labelText: 'Nom X'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _yNameController,
-                    decoration: const InputDecoration(labelText: 'Nom Y'),
-                  ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _xNameController,
+                        decoration: const InputDecoration(labelText: 'Nom X'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _yNameController,
+                        decoration: const InputDecoration(labelText: 'Nom Y'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ],
-          ),
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Nom de la variable'),
+                  ),
+                ),
+                if (data.type == DataInputType.bivariate) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _xNameController,
+                      decoration: const InputDecoration(labelText: 'Nom X'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _yNameController,
+                      decoration: const InputDecoration(labelText: 'Nom Y'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           const SizedBox(height: 16),
           Expanded(
             child: Column(
@@ -288,10 +330,10 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text('$label: $value', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+      child: Text('$label: $value', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
     );
   }
 }

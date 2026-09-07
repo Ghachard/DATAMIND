@@ -6,7 +6,6 @@ import 'package:path/path.dart' as p;
 import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/data_provider.dart';
-import '../widgets/logo_header.dart';
 
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});
@@ -93,13 +92,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   @override
   Widget build(BuildContext context) {
     final data = ref.watch(dataProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
 
     return Column(
       children: [
-        const LogoHeader(),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isMobile ? 12 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
