@@ -2,6 +2,23 @@ from fpdf import FPDF
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import os
+import numpy as np
+
+
+def _format_val(val):
+    if isinstance(val, (list, tuple)):
+        return str([_format_val(v) for v in val])
+    if isinstance(val, np.integer):
+        return str(int(val))
+    if isinstance(val, np.floating):
+        return f'{float(val):.4f}'
+    if isinstance(val, np.bool_):
+        return str(bool(val))
+    if isinstance(val, float):
+        return f'{val:.4f}'
+    if isinstance(val, bool):
+        return str(val)
+    return str(val)
 
 
 class DataMindPDF(FPDF):
@@ -82,18 +99,20 @@ def generate_pdf_report(data_type: str, variable_name: str, stats: Dict[str, Any
 
     for i in range(0, len(items), 2):
         key1, val1 = items[i]
+        val1_str = _format_val(val1)
         pdf.set_font('Helvetica', '', 10)
         pdf.set_fill_color(240, 245, 255)
         pdf.cell(col_width, row_height, f'  {stat_labels[key1]}', border=1, fill=(i % 2 == 0))
         pdf.set_font('Helvetica', 'B', 10)
-        pdf.cell(col_width, row_height, f'  {val1}', border=1, fill=(i % 2 == 0), new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(col_width, row_height, f'  {val1_str}', border=1, fill=(i % 2 == 0), new_x="LMARGIN", new_y="NEXT")
 
         if i + 1 < len(items):
             key2, val2 = items[i + 1]
+            val2_str = _format_val(val2)
             pdf.set_font('Helvetica', '', 10)
             pdf.cell(col_width, row_height, f'  {stat_labels[key2]}', border=1, fill=(i % 2 == 0))
             pdf.set_font('Helvetica', 'B', 10)
-            pdf.cell(col_width, row_height, f'  {val2}', border=1, fill=(i % 2 == 0), new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(col_width, row_height, f'  {val2_str}', border=1, fill=(i % 2 == 0), new_x="LMARGIN", new_y="NEXT")
 
     if 'outliers' in stats and stats['outliers']:
         pdf.ln(4)

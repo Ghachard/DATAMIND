@@ -40,9 +40,20 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final result = ref.watch(resultProvider);
+    final data = ref.watch(dataProvider);
     final locale = ref.watch(languageProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
+
+    final typeName = switch (data.type) {
+      DataInputType.simple => AppStrings.tr('input_simple', locale),
+      DataInputType.grouped => AppStrings.tr('input_grouped', locale),
+      DataInputType.classes => AppStrings.tr('input_classes', locale),
+      DataInputType.bivariate => AppStrings.tr('input_bivariate', locale),
+    };
+    final natureName = data.dataNature == DataNature.discrete
+        ? AppStrings.tr('label_discrete', locale)
+        : AppStrings.tr('label_continuous', locale);
 
     return Column(
       children: [
@@ -66,6 +77,29 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     ),
                   ],
                 ),
+                if (data.hasData) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.data_object, size: 16, color: AppColors.accent),
+                        const SizedBox(width: 8),
+                        Text(data.variableName, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.accent, fontSize: 13)),
+                        const SizedBox(width: 12),
+                        Text('$typeName · $natureName', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
+                        const SizedBox(width: 12),
+                        Text('${_getCount(data)} ${AppStrings.tr('input_entries', locale)}', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 if (_showHistory) ...[
                   SizedBox(
@@ -131,8 +165,6 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
           Icon(Icons.analytics_outlined, size: 64, color: Color(0xFF666666)),
           const SizedBox(height: 16),
           Text(AppStrings.tr('analysis_empty', locale), style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Text(AppStrings.tr('analysis_empty_hint', locale), style: TextStyle(color: Color(0xFF999999))),
         ],
       ),
     );
@@ -329,5 +361,14 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
         ],
       ),
     );
+  }
+
+  int _getCount(DataState data) {
+    switch (data.type) {
+      case DataInputType.simple: return data.values.length;
+      case DataInputType.grouped: return data.values.length;
+      case DataInputType.classes: return data.lowerBounds.length;
+      case DataInputType.bivariate: return data.xValues.length;
+    }
   }
 }

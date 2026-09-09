@@ -284,11 +284,11 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                   segments: [
                     ButtonSegment(value: DataInputType.simple, label: Text('Simple')),
                     ButtonSegment(value: DataInputType.grouped, label: Text('Groupé')),
-                    ButtonSegment(value: DataInputType.classes, label: Text('Classes [a;b]')),
-                    ButtonSegment(value: DataInputType.bivariate, label: Text('Bivarié (X,Y)')),
+                    ButtonSegment(value: DataInputType.classes, label: Text('Classes')),
+                    ButtonSegment(value: DataInputType.bivariate, label: Text('Bivarié')),
                   ],
                   selected: {data.type},
-                  onSelectionChanged: (selected) {
+                  onSelectionChanged: data.hasData ? null : (selected) {
                     ref.read(dataProvider.notifier).setType(selected.first);
                     if (selected.first == DataInputType.classes) {
                       ref.read(dataProvider.notifier).setDataNature(DataNature.continuous);

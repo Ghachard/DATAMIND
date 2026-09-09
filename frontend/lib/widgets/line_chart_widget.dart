@@ -46,10 +46,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: InteractiveViewer(
-              maxScale: 3.0,
-              minScale: 0.5,
-              child: LineChart(
+            child: LineChart(
               LineChartData(
                 minY: 0,
                 maxY: maxY * 1.2,
@@ -173,7 +170,6 @@ class _LineChartWidgetState extends State<LineChartWidget> {
                       )
                     : null,
               ),
-            ),
             ),
           ),
         ),

@@ -36,10 +36,7 @@ class _BarChartWidgetState extends State<BarChartWidget> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: InteractiveViewer(
-              maxScale: 3.0,
-              minScale: 0.5,
-              child: BarChart(
+            child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
                   maxY: maxY * 1.3,

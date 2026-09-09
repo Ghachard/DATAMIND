@@ -59,10 +59,7 @@ class _ScatterChartWidgetState extends State<ScatterChartWidget> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: InteractiveViewer(
-              maxScale: 3.0,
-              minScale: 0.5,
-              child: ScatterChart(
+            child: ScatterChart(
               ScatterChartData(
                 minX: minX - xRange * 0.1,
                 maxX: maxX + xRange * 0.1,
@@ -162,7 +159,6 @@ class _ScatterChartWidgetState extends State<ScatterChartWidget> {
                       )),
                 ],
               ),
-            ),
             ),
           ),
         ),

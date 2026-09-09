@@ -19,47 +19,73 @@ def export_pdf(input: PDFExportInput):
         interpretation = ""
         charts_b64 = []
 
+        dn = input.data_nature or "continuous"
+
         if input.data_type == "simple" and input.values:
-            stats = calculate_descriptive_simple(input.values, data_nature=input.data_nature)
+            stats = calculate_descriptive_simple(input.values, data_nature=dn)
             interpretation = generate_full_interpretation(stats, "simple")
             if input.include_charts:
-                charts_b64.append(generate_chart("histogram", values=input.values,
-                                                  variable_name=input.variable_name, dark=False))
-                charts_b64.append(generate_chart("boxplot", values=input.values,
-                                                  variable_name=input.variable_name, dark=False))
+                try:
+                    charts_b64.append(generate_chart("histogram", values=input.values,
+                                                      variable_name=input.variable_name, dark=False, data_nature=dn))
+                except Exception:
+                    pass
+                try:
+                    charts_b64.append(generate_chart("boxplot", values=input.values,
+                                                      variable_name=input.variable_name, dark=False))
+                except Exception:
+                    pass
 
         elif input.data_type == "grouped" and input.values and input.frequencies:
-            stats = calculate_descriptive_grouped(input.values, input.frequencies, data_nature=input.data_nature)
+            stats = calculate_descriptive_grouped(input.values, input.frequencies, data_nature=dn)
             interpretation = generate_full_interpretation(stats, "grouped")
             if input.include_charts:
-                charts_b64.append(generate_chart("bar", values=input.values,
-                                                  variable_name=input.variable_name, dark=False))
-                charts_b64.append(generate_chart("polygone", values=input.values,
-                                                  frequencies=input.frequencies,
-                                                  variable_name=input.variable_name, dark=False))
+                try:
+                    charts_b64.append(generate_chart("bar", values=input.values,
+                                                      variable_name=input.variable_name, dark=False))
+                except Exception:
+                    pass
+                try:
+                    charts_b64.append(generate_chart("polygone", values=input.values,
+                                                      frequencies=input.frequencies,
+                                                      variable_name=input.variable_name, dark=False))
+                except Exception:
+                    pass
 
         elif input.data_type == "class_interval" and input.lower_bounds and input.upper_bounds and input.frequencies:
-            stats = calculate_descriptive_classes(input.lower_bounds, input.upper_bounds, input.frequencies, data_nature=input.data_nature)
+            stats = calculate_descriptive_classes(input.lower_bounds, input.upper_bounds, input.frequencies, data_nature=dn)
             interpretation = generate_full_interpretation(stats, "classes")
             if input.include_charts:
-                charts_b64.append(generate_chart("histogram_classes", lower_bounds=input.lower_bounds,
-                                                  upper_bounds=input.upper_bounds,
-                                                  frequencies=input.frequencies,
-                                                  variable_name=input.variable_name, dark=False))
-                charts_b64.append(generate_chart("ogive", lower_bounds=input.lower_bounds,
-                                                  upper_bounds=input.upper_bounds,
-                                                  frequencies=input.frequencies,
-                                                  variable_name=input.variable_name, dark=False))
+                try:
+                    charts_b64.append(generate_chart("histogram_classes", lower_bounds=input.lower_bounds,
+                                                      upper_bounds=input.upper_bounds,
+                                                      frequencies=input.frequencies,
+                                                      variable_name=input.variable_name, dark=False))
+                except Exception:
+                    pass
+                try:
+                    charts_b64.append(generate_chart("ogive", lower_bounds=input.lower_bounds,
+                                                      upper_bounds=input.upper_bounds,
+                                                      frequencies=input.frequencies,
+                                                      variable_name=input.variable_name, dark=False))
+                except Exception:
+                    pass
 
         elif input.data_type == "bivariate" and input.x and input.y:
-            stats = calculate_bivariate(input.x, input.y, data_nature=input.data_nature)
+            stats = calculate_bivariate(input.x, input.y, data_nature=dn)
             interpretation = generate_full_interpretation(stats, "bivariate")
             if input.include_charts:
-                charts_b64.append(generate_chart("scatter", x=input.x, y=input.y,
-                                                  variable_name=input.variable_name, dark=False))
+                try:
+                    charts_b64.append(generate_chart("scatter", x=input.x, y=input.y,
+                                                      variable_name=input.variable_name, dark=False))
+                except Exception:
+                    pass
 
         else:
             raise HTTPException(status_code=400, detail="Données insuffisantes pour le type sélectionné")
+
+        if not stats:
+            raise HTTPException(status_code=400, detail="Aucune statistique calculée")
 
         if not input.include_interpretation:
             interpretation = ""
