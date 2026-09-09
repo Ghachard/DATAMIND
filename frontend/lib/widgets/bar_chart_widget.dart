@@ -154,7 +154,6 @@ class _BarChartWidgetState extends State<BarChartWidget> {
               ),
             ),
           ),
-        ),
         if (mean != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
