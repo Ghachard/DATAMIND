@@ -422,19 +422,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 ),
                 const SizedBox(height: 8),
                 if (data.hasData)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardDark,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.borderDark),
-                    ),
-                    child: Text(
-                      _getDataPreview(data),
-                      style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
-                    ),
-                  )
+                  _buildEntryList(data, locale)
                 else
                   Container(
                     width: double.infinity,
@@ -638,6 +626,107 @@ class _InputScreenState extends ConsumerState<InputScreen> {
           ],
         );
     }
+  }
+
+  Widget _buildEntryList(DataState data, Locale locale) {
+    final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    if (lines.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxHeight: 150),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.borderDark),
+      ),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: lines.length,
+        itemBuilder: (context, index) {
+          final parts = lines[index].split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
+          final display = parts.join('  |  ');
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppColors.borderDark, width: 0.5)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(display, style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC), fontFamily: 'monospace')),
+                ),
+                InkWell(
+                  onTap: () => _showEditDialog(index, lines[index], locale),
+                  child: Icon(Icons.edit, size: 16, color: AppColors.accent),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: () => _deleteEntry(index, locale),
+                  child: Icon(Icons.close, size: 16, color: AppColors.error),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _deleteEntry(int index, Locale locale) {
+    final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    if (index < 0 || index >= lines.length) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppStrings.tr('label_data_nature', locale) == 'Nature' ? 'Supprimer ?' : 'Delete?'),
+        content: Text('Supprimer cette entrée ?', style: TextStyle(fontSize: 14)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Annuler')),
+          TextButton(
+            onPressed: () {
+              lines.removeAt(index);
+              _textController.text = lines.join('\n');
+              _parseData(locale);
+              Navigator.pop(ctx);
+            },
+            child: Text('Supprimer', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditDialog(int index, String line, Locale locale) {
+    final editController = TextEditingController(text: line);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Modifier'),
+        content: TextField(
+          controller: editController,
+          autofocus: true,
+          style: TextStyle(fontFamily: 'monospace'),
+          decoration: InputDecoration(border: const OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Annuler')),
+          TextButton(
+            onPressed: () {
+              final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+              if (index >= 0 && index < lines.length) {
+                lines[index] = editController.text.trim();
+                _textController.text = lines.join('\n');
+                _parseData(locale);
+              }
+              Navigator.pop(ctx);
+            },
+            child: Text('OK', style: TextStyle(color: AppColors.accent)),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _addButton() {

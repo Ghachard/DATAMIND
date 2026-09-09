@@ -154,6 +154,11 @@ class AppStrings {
       'input_no_data': 'Aucune valeur saisie',
       'input_analyser': 'Analyser',
       'input_serie_name': 'Nom de la série',
+      'btn_delete': 'Supprimer',
+      'btn_cancel': 'Annuler',
+      'btn_edit': 'Modifier',
+      'btn_confirm_delete': 'Supprimer cette entrée ?',
+      'btn_confirm': 'OK',
     },
     'en': {
       'app_title': 'DataMind',
@@ -255,6 +260,11 @@ class AppStrings {
       'input_no_data': 'No values entered',
       'input_analyser': 'Analyze',
       'input_serie_name': 'Series name',
+      'btn_delete': 'Delete',
+      'btn_cancel': 'Cancel',
+      'btn_edit': 'Edit',
+      'btn_confirm_delete': 'Delete this entry?',
+      'btn_confirm': 'OK',
     },
   };
 

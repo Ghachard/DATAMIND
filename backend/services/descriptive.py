@@ -49,13 +49,13 @@ def calculate_descriptive_simple(values: List[float], data_nature: str = "contin
     if 3 <= n <= 5000:
         try:
             shapiro_stat, shapiro_p = scipy_stats.shapiro(arr)
-            is_normal = shapiro_p > 0.05
+            is_normal = bool(shapiro_p > 0.05)
             normality_p_value = round(float(shapiro_p), 6)
         except Exception:
             pass
 
     return {
-        "n": n,
+        "n": int(n),
         "mean": round(mean_val, 6),
         "median": round(median_val, 6),
         "mode": round(mode_val, 6),
@@ -73,8 +73,8 @@ def calculate_descriptive_simple(values: List[float], data_nature: str = "contin
         "max_val": round(float(np.max(arr)), 6),
         "sum": round(float(np.sum(arr)), 6),
         "sem": round(sem_val, 6),
-        "outliers": [round(x, 6) for x in all_outliers],
-        "z_scores": [round(z, 4) for z in z_scores],
+        "outliers": [round(float(x), 6) for x in all_outliers],
+        "z_scores": [round(float(z), 4) for z in z_scores],
         "is_normal": is_normal,
         "normality_p_value": normality_p_value,
         "data_type": "simple",
@@ -141,7 +141,7 @@ def calculate_descriptive_grouped(values: List[float], frequencies: List[int], d
     iqr_val = float(q3 - q1)
 
     return {
-        "n": n,
+        "n": int(n),
         "mean": round(mean_val, 6),
         "median": round(median_val, 6),
         "mode": round(mode_val, 6),
@@ -156,7 +156,7 @@ def calculate_descriptive_grouped(values: List[float], frequencies: List[int], d
         "min_val": round(float(np.min(arr)), 6),
         "max_val": round(float(np.max(arr)), 6),
         "sum": round(float(np.sum(arr * freq)), 6),
-        "effective_total": n,
+        "effective_total": int(n),
         "outliers": [],
         "data_nature": data_nature
     }
@@ -215,7 +215,7 @@ def calculate_descriptive_classes(lower_bounds: List[float], upper_bounds: List[
     iqr_val = float(q3 - q1)
 
     return {
-        "n": n,
+        "n": int(n),
         "mean": round(mean_val, 6),
         "median": round(median_val, 6),
         "mode": round(mode_val, 6),
@@ -230,7 +230,7 @@ def calculate_descriptive_classes(lower_bounds: List[float], upper_bounds: List[
         "min_val": round(float(np.min(lower)), 6),
         "max_val": round(float(np.max(upper)), 6),
         "sum": round(float(np.sum(midpoints * freq)), 6),
-        "effective_total": n,
+        "effective_total": int(n),
         "class_midpoints": [round(float(m), 6) for m in midpoints],
         "cumulative_freq": [int(c) for c in cumulative],
         "outliers": [],
@@ -281,16 +281,16 @@ def calculate_bivariate(x: List[float], y: List[float], data_nature: str = "cont
     )
 
     return {
-        "n": n,
-        "mean_x": round(mean_x, 6),
-        "mean_y": round(mean_y, 6),
-        "std_x": round(std_x, 6),
-        "std_y": round(std_y, 6),
-        "covariance": round(covariance, 6),
-        "pearson_r": round(pearson_r, 6),
-        "r_squared": round(r_squared, 6),
-        "regression_slope": round(slope, 6),
-        "regression_intercept": round(intercept, 6),
+        "n": int(n),
+        "mean_x": round(float(mean_x), 6),
+        "mean_y": round(float(mean_y), 6),
+        "std_x": round(float(std_x), 6),
+        "std_y": round(float(std_y), 6),
+        "covariance": round(float(covariance), 6),
+        "pearson_r": round(float(pearson_r), 6),
+        "r_squared": round(float(r_squared), 6),
+        "regression_slope": round(float(slope), 6),
+        "regression_intercept": round(float(intercept), 6),
         "interpretation": interpretation,
         "data_nature": data_nature
     }
