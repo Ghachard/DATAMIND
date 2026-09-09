@@ -5,6 +5,18 @@ import os
 import numpy as np
 
 
+def _sanitize(text):
+    """Replace non-Latin1 characters for fpdf2 WinAnsi encoding."""
+    replacements = {
+        '\u2014': '-', '\u2013': '-', '\u2018': "'", '\u2019': "'",
+        '\u201c': '"', '\u201d': '"', '\u2026': '...', '\u00d7': 'x',
+        '\u00f7': '/', '\u20ac': 'EUR', '\u00a0': ' ',
+    }
+    for k, v in replacements.items():
+        text = text.replace(k, v)
+    return text.encode('latin-1', errors='replace').decode('latin-1')
+
+
 def _format_val(val):
     if isinstance(val, (list, tuple)):
         return str([_format_val(v) for v in val])
@@ -46,14 +58,14 @@ def generate_pdf_report(data_type: str, variable_name: str, stats: Dict[str, Any
 
     pdf.set_font('Helvetica', 'B', 18)
     pdf.set_text_color(30, 30, 30)
-    pdf.cell(0, 12, title, align='C', new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 12, _sanitize(title), align='C', new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
 
     pdf.set_font('Helvetica', '', 11)
     pdf.set_text_color(100, 100, 100)
     data_nature = stats.get('data_nature', 'continuous')
     nature_label = 'Discret' if data_nature == 'discrete' else 'Continu'
-    pdf.cell(0, 8, f'Variable: {variable_name}  |  Type: {data_type}  |  Nature: {nature_label}', align='C', new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 8, _sanitize(f'Variable: {variable_name}  |  Type: {data_type}  |  Nature: {nature_label}'), align='C', new_x="LMARGIN", new_y="NEXT")
     pdf.ln(8)
 
     pdf.set_font('Helvetica', 'B', 14)
@@ -118,7 +130,7 @@ def generate_pdf_report(data_type: str, variable_name: str, stats: Dict[str, Any
         pdf.ln(4)
         pdf.set_font('Helvetica', 'B', 11)
         pdf.set_text_color(255, 82, 82)
-        pdf.cell(0, 8, f'Valeurs aberrantes detectees: {stats["outliers"]}', new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 8, _sanitize(f'Valeurs aberrantes detectees: {stats["outliers"]}'), new_x="LMARGIN", new_y="NEXT")
 
     if 'is_normal' in stats:
         pdf.ln(4)
@@ -142,7 +154,7 @@ def generate_pdf_report(data_type: str, variable_name: str, stats: Dict[str, Any
         pdf.set_font('Helvetica', '', 10)
         pdf.set_text_color(30, 30, 30)
         pdf.set_fill_color(240, 247, 255)
-        pdf.multi_cell(0, 6, interpretation, border=0, fill=True)
+        pdf.multi_cell(0, 6, _sanitize(interpretation), border=0, fill=True)
 
     if charts_base64:
         import base64

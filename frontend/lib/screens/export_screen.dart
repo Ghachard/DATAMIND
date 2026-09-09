@@ -55,7 +55,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         'include_descriptive': _includeStats,
         'include_charts': _includeCharts,
         'include_interpretation': _includeInterpretation,
-        'title': 'Rapport statistique — ${data.variableName}',
+        'title': 'Rapport statistique - ${data.variableName}',
       };
 
       if (data.type == DataInputType.simple) requestData['values'] = data.values;

@@ -82,21 +82,41 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                   const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.primary.withOpacity(0.3)),
                     ),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.data_object, size: 16, color: AppColors.accent),
-                        const SizedBox(width: 8),
-                        Text(data.variableName, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.accent, fontSize: 13)),
-                        const SizedBox(width: 12),
-                        Text('$typeName · $natureName', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
-                        const SizedBox(width: 12),
-                        Text('${_getCount(data)} ${AppStrings.tr('input_entries', locale)}', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
+                        Row(
+                          children: [
+                            Icon(Icons.data_object, size: 16, color: AppColors.accent),
+                            const SizedBox(width: 8),
+                            Text(data.variableName, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.accent, fontSize: 13)),
+                            const SizedBox(width: 12),
+                            Text('$typeName · $natureName', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
+                            const SizedBox(width: 12),
+                            Text('${_getCount(data)} ${AppStrings.tr('input_entries', locale)}', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardDark,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            _getDataPreview(data),
+                            style: TextStyle(fontSize: 11, color: Color(0xFFCCCCCC), fontFamily: 'monospace'),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -370,6 +390,22 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       case DataInputType.grouped: return data.values.length;
       case DataInputType.classes: return data.lowerBounds.length;
       case DataInputType.bivariate: return data.xValues.length;
+    }
+  }
+
+  String _getDataPreview(DataState data) {
+    switch (data.type) {
+      case DataInputType.simple:
+        return data.values.join(', ');
+      case DataInputType.grouped:
+        return List.generate(data.values.length, (i) =>
+          '${data.values[i]} (n=${i < data.frequencies.length ? data.frequencies[i] : '?'})').join(', ');
+      case DataInputType.classes:
+        return List.generate(data.lowerBounds.length, (i) =>
+          '[${data.lowerBounds[i]};${data.upperBounds[i]}[ n=${i < data.frequencies.length ? data.frequencies[i] : '?'}]').join(', ');
+      case DataInputType.bivariate:
+        return List.generate(data.xValues.length, (i) =>
+          '(${data.xValues[i]}, ${i < data.yValues.length ? data.yValues[i] : '?'})').join(', ');
     }
   }
 }
