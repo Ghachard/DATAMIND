@@ -28,7 +28,10 @@ class AnalysisHistory(Base):
     result_summary = Column(Text, nullable=False)
 
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    pass
 
 
 def get_db():

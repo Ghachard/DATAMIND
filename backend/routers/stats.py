@@ -21,10 +21,13 @@ def descriptive_simple(data: SimpleDataInput):
     result = calculate_descriptive_simple(data.values, data.data_nature.value)
     interpretation = generate_full_interpretation(result, "simple")
 
-    db = next(get_db())
     analysis_id = str(uuid4())
-    save_analysis(db, analysis_id, "simple", data.variable_name, data.values, result)
-    db.close()
+    try:
+        db = next(get_db())
+        save_analysis(db, analysis_id, "simple", data.variable_name, data.values, result)
+        db.close()
+    except Exception:
+        pass
 
     return {
         "analysis_id": analysis_id,
@@ -45,11 +48,14 @@ def descriptive_grouped(data: GroupedDataInput):
     result = calculate_descriptive_grouped(data.values, data.frequencies, data.data_nature.value)
     interpretation = generate_full_interpretation(result, "grouped")
 
-    db = next(get_db())
     analysis_id = str(uuid4())
-    save_analysis(db, analysis_id, "grouped", data.variable_name, data.values, result,
-                  frequencies=data.frequencies)
-    db.close()
+    try:
+        db = next(get_db())
+        save_analysis(db, analysis_id, "grouped", data.variable_name, data.values, result,
+                      frequencies=data.frequencies)
+        db.close()
+    except Exception:
+        pass
 
     return {
         "analysis_id": analysis_id,
@@ -70,12 +76,15 @@ def descriptive_classes(data: ClassIntervalDataInput):
     result = calculate_descriptive_classes(data.lower_bounds, data.upper_bounds, data.frequencies, data.data_nature.value)
     interpretation = generate_full_interpretation(result, "classes")
 
-    db = next(get_db())
     analysis_id = str(uuid4())
-    save_analysis(db, analysis_id, "classes", data.variable_name, [], result,
-                  frequencies=data.frequencies, lower_bounds=data.lower_bounds,
-                  upper_bounds=data.upper_bounds)
-    db.close()
+    try:
+        db = next(get_db())
+        save_analysis(db, analysis_id, "classes", data.variable_name, [], result,
+                      frequencies=data.frequencies, lower_bounds=data.lower_bounds,
+                      upper_bounds=data.upper_bounds)
+        db.close()
+    except Exception:
+        pass
 
     return {
         "analysis_id": analysis_id,
@@ -96,11 +105,14 @@ def descriptive_bivariate(data: BivariateDataInput):
     result = calculate_bivariate(data.x, data.y, data.data_nature.value)
     interpretation = generate_full_interpretation(result, "bivariate")
 
-    db = next(get_db())
     analysis_id = str(uuid4())
-    save_analysis(db, analysis_id, "bivariate", f"{data.x_name} / {data.y_name}",
-                  data.x, result, y=data.y)
-    db.close()
+    try:
+        db = next(get_db())
+        save_analysis(db, analysis_id, "bivariate", f"{data.x_name} / {data.y_name}",
+                      data.x, result, y=data.y)
+        db.close()
+    except Exception:
+        pass
 
     return {
         "analysis_id": analysis_id,
@@ -113,18 +125,21 @@ def descriptive_bivariate(data: BivariateDataInput):
 
 @router.get("/history")
 def get_history():
-    db = next(get_db())
-    items = get_recent_analyses(db, limit=5)
-    db.close()
-    return {
-        "history": [
-            {
-                "id": item.id,
-                "data_type": item.data_type,
-                "variable_name": item.variable_name,
-                "created_at": item.created_at.isoformat(),
-                "result_summary": item.result_summary
-            }
-            for item in items
-        ]
-    }
+    try:
+        db = next(get_db())
+        items = get_recent_analyses(db, limit=5)
+        db.close()
+        return {
+            "history": [
+                {
+                    "id": item.id,
+                    "data_type": item.data_type,
+                    "variable_name": item.variable_name,
+                    "created_at": item.created_at.isoformat(),
+                    "result_summary": item.result_summary
+                }
+                for item in items
+            ]
+        }
+    except Exception:
+        return {"history": []}
