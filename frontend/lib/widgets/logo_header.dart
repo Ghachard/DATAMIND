@@ -12,7 +12,12 @@ class LogoHeader extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 8,
+        bottom: 12,
+        left: 20,
+        right: 20,
+      ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : AppColors.cardLight,
         border: Border(
@@ -33,18 +38,8 @@ class LogoHeader extends StatelessWidget {
           Container(
             width: 1,
             height: 48,
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  isDark ? AppColors.borderDark : AppColors.borderLight,
-                  Colors.transparent,
-                ],
-              ),
-            ),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
           ),
           _buildLogo(
             path: 'assets/images/datamind_logo.jpg',
@@ -67,9 +62,9 @@ class LogoHeader extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 64,
-          height: 64,
-          padding: const EdgeInsets.all(6),
+          width: 52,
+          height: 52,
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: isDark ? AppColors.bgDark : const Color(0xFFF0F4F8),
             borderRadius: BorderRadius.circular(10),
@@ -77,21 +72,17 @@ class LogoHeader extends StatelessWidget {
               color: isDark ? AppColors.borderDark : AppColors.borderLight,
               width: 1.5,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
-          child: Image.asset(
-            path,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => Icon(
-              fallbackIcon,
-              size: 36,
-              color: AppColors.primary,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.asset(
+              path,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Icon(
+                fallbackIcon,
+                size: 28,
+                color: AppColors.primary,
+              ),
             ),
           ),
         ),
