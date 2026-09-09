@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: cd frontend && flutter pub get
 
+      - name: Generate app icons
+        run: cd frontend && dart run flutter_launcher_icons
+
       - name: Build APK
         run: cd frontend && flutter build apk --no-tree-shake-icons --dart-define=API_BASE_URL=https://datamind-api-yl0t.onrender.com
 

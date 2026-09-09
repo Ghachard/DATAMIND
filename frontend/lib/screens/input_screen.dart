@@ -408,7 +408,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                         const Icon(Icons.check_circle, color: AppColors.success, size: 16),
                         const SizedBox(width: 8),
                         Expanded(child: Text(
-                          AppStrings.tr('analysis_empty_hint', locale),
+                          AppStrings.tr('analysis_done', locale),
                           style: TextStyle(color: AppColors.success, fontSize: 12),
                         )),
                       ],

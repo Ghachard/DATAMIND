@@ -27,6 +27,14 @@ dev_dependencies:
   flutter_lints: ^3.0.1
   build_runner: ^2.4.8
   riverpod_generator: ^2.3.9
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/datamind_logo.jpg"
+  adaptive_icon_background: "#0A1628"
+  adaptive_icon_foreground: "assets/images/datamind_logo.jpg"
 
 flutter:
   uses-material-design: true
