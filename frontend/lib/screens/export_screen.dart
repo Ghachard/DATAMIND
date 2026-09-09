@@ -101,14 +101,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     return Column(
       children: [
         Expanded(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: EdgeInsets.all(isMobile ? 12 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
           Text(AppStrings.tr('export_title', locale), style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 8),
-          Text('Générez un rapport PDF complet', style: TextStyle(color: Color(0xFF999999))),
+          Text(AppStrings.tr('export_subtitle', locale), style: TextStyle(color: Color(0xFF999999))),
           const SizedBox(height: 24),
           Card(
             child: Padding(
@@ -158,9 +158,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _infoRow('Type', data.type.name),
-                  _infoRow('Variable', data.variableName),
-                  _infoRow('Points', '${_getCount(data)}'),
+                  _infoRow(AppStrings.tr('charts_type_label', locale), data.type.name),
+                  _infoRow(AppStrings.tr('nav_variable', locale), data.variableName),
+                  _infoRow(AppStrings.tr('label_n', locale), '${_getCount(data)}'),
                 ],
               ),
             ),
@@ -211,9 +211,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               ),
             ),
           ],
-        ],
-            ),
-          ),
         ),
       ],
     );

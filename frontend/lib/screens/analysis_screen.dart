@@ -52,75 +52,75 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-          Row(
-            children: [
-              Text(
-                AppStrings.tr('analysis_title', locale),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const Spacer(),
-              IconButton(
-                icon: Icon(_showHistory ? Icons.close : Icons.history),
-                onPressed: () => setState(() => _showHistory = !_showHistory),
-                tooltip: AppStrings.tr('btn_history', locale),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (_showHistory) ...[
-            SizedBox(
-              height: 120,
-              child: _history.isEmpty
-                  ? Center(child: Text(AppStrings.tr('analysis_no_history', locale)))
-                  : ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _history.length,
-                      itemBuilder: (context, index) {
-                        final item = _history[index];
-                        return Card(
-                          margin: const EdgeInsets.only(right: 8),
-                          child: InkWell(
-                            onTap: () {},
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(item['data_type'] ?? '',
-                                      style: TextStyle(color: AppColors.accent, fontSize: 11)),
-                                  const SizedBox(height: 4),
-                                  Text(item['variable_name'] ?? '',
-                                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                                  const SizedBox(height: 4),
-                                  Text(item['created_at']?.substring(0, 16) ?? '',
-                                      style: TextStyle(color: Color(0xFF999999), fontSize: 11)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                Row(
+                  children: [
+                    Text(
+                      AppStrings.tr('analysis_title', locale),
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
+                    const Spacer(),
+                    IconButton(
+                      icon: Icon(_showHistory ? Icons.close : Icons.history),
+                      onPressed: () => setState(() => _showHistory = !_showHistory),
+                      tooltip: AppStrings.tr('btn_history', locale),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (_showHistory) ...[
+                  SizedBox(
+                    height: 120,
+                    child: _history.isEmpty
+                        ? Center(child: Text(AppStrings.tr('analysis_no_history', locale)))
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _history.length,
+                            itemBuilder: (context, index) {
+                              final item = _history[index];
+                              return Card(
+                                margin: const EdgeInsets.only(right: 8),
+                                child: InkWell(
+                                  onTap: () {},
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(item['data_type'] ?? '',
+                                            style: TextStyle(color: AppColors.accent, fontSize: 11)),
+                                        const SizedBox(height: 4),
+                                        Text(item['variable_name'] ?? '',
+                                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                                        const SizedBox(height: 4),
+                                        Text(item['created_at']?.substring(0, 16) ?? '',
+                                            style: TextStyle(color: Color(0xFF999999), fontSize: 11)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                Expanded(
+                  child: result.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : result.error != null
+                          ? _buildError(result.error!, locale)
+                          : result.hasResult
+                              ? _buildResults(result, locale)
+                              : _buildEmpty(locale),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: result.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : result.error != null
-                      ? _buildError(result.error!, locale)
-                      : result.hasResult
-                          ? _buildResults(result, locale)
-                          : _buildEmpty(locale),
-            ),
-          ],
-        ],
-      ),
-    ),
-    ),
-  ],
-);
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildEmpty(Locale locale) {
@@ -149,7 +149,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             children: [
               const Icon(Icons.error_outline, color: AppColors.error, size: 48),
               const SizedBox(height: 16),
-              Text('Erreur', style: Theme.of(context).textTheme.titleLarge),
+              Text(AppStrings.tr('analysis_error_title', locale), style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
               Text(error, textAlign: TextAlign.center),
             ],
@@ -298,7 +298,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        '${(stats["outliers"] as List).length} valeur(s) aberrante(s) détectée(s)',
+                        '${(stats["outliers"] as List).length} ${AppStrings.tr('analysis_outliers', locale)}',
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),

@@ -19,80 +19,6 @@ class _InputScreenState extends ConsumerState<InputScreen> {
   final _singleFreqController = TextEditingController();
   final _singleX2Controller = TextEditingController();
   final _singleFreqClassController = TextEditingController();
-  final _bulkHintController = TextEditingController();
-
-  String _singleValueHint() {
-    final type = ref.read(dataProvider).type;
-    switch (type) {
-      case DataInputType.simple:
-        return 'Valeur xi';
-      case DataInputType.grouped:
-        return 'Valeur xi';
-      case DataInputType.classes:
-        return 'Borne inf. (a)';
-      case DataInputType.bivariate:
-        return 'X';
-    }
-  }
-
-  String _singleExtraHint() {
-    final type = ref.read(dataProvider).type;
-    switch (type) {
-      case DataInputType.simple:
-        return '';
-      case DataInputType.grouped:
-        return 'Effectif n';
-      case DataInputType.classes:
-        return 'Borne sup. (b)';
-      case DataInputType.bivariate:
-        return 'Y';
-    }
-  }
-
-  String _bulkHint() {
-    final type = ref.read(dataProvider).type;
-    switch (type) {
-      case DataInputType.simple:
-        return 'Ex: 12, 15, 8.5, 20, 17.3';
-      case DataInputType.grouped:
-        return 'Ex: 12\t5\n15\t8\n18\t12';
-      case DataInputType.classes:
-        return 'Ex: 10\t20\t5\n20\t30\t8';
-      case DataInputType.bivariate:
-        return 'Ex: 10\t25\n15\t30\n20\t35';
-    }
-  }
-
-  String _graphInfo(Locale locale) {
-    final data = ref.read(dataProvider);
-    final isDiscrete = data.dataNature == DataNature.discrete;
-    switch (data.type) {
-      case DataInputType.simple:
-        return isDiscrete
-            ? AppStrings.tr('input_graph_simple_discrete', locale)
-            : AppStrings.tr('input_graph_simple_continuous', locale);
-      case DataInputType.grouped:
-        return AppStrings.tr('input_graph_grouped', locale);
-      case DataInputType.classes:
-        return AppStrings.tr('input_graph_classes', locale);
-      case DataInputType.bivariate:
-        return AppStrings.tr('input_graph_bivariate', locale);
-    }
-  }
-
-  String _typeName() {
-    final type = ref.read(dataProvider).type;
-    switch (type) {
-      case DataInputType.simple:
-        return 'Simple';
-      case DataInputType.grouped:
-        return 'Groupé';
-      case DataInputType.classes:
-        return 'Classes';
-      case DataInputType.bivariate:
-        return 'Bivarié';
-    }
-  }
 
   @override
   void dispose() {
@@ -102,18 +28,14 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     _singleFreqController.dispose();
     _singleX2Controller.dispose();
     _singleFreqClassController.dispose();
-    _bulkHintController.dispose();
     super.dispose();
   }
 
-  bool _validateInput(String text, DataInputType type, Locale locale) {
+  bool _validateInput(String text, DataInputType type) {
     try {
       final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
       if (lines.isEmpty) return false;
-
-      final sample = lines.first.trim();
-      final firstValue = sample.split(RegExp(r'[\t;,]+')).first.trim();
-
+      final firstValue = lines.first.trim().split(RegExp(r'[\t;,]+')).first.trim();
       if (double.tryParse(firstValue) == null) return false;
       return true;
     } catch (e) {
@@ -121,13 +43,11 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     }
   }
 
-  void _parseData(Locale locale) {
+  void _parseData() {
     final data = ref.read(dataProvider);
     final text = _textController.text;
     if (text.trim().isEmpty) return;
-
-    if (!_validateInput(text, data.type, locale)) return;
-
+    if (!_validateInput(text, data.type)) return;
     try {
       switch (data.type) {
         case DataInputType.simple:
@@ -143,53 +63,43 @@ class _InputScreenState extends ConsumerState<InputScreen> {
           ref.read(dataProvider.notifier).parseBivariateFromText(text);
           break;
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur de parsing: $e'), backgroundColor: AppColors.error),
-      );
-    }
+    } catch (e) {}
   }
 
   void _addSingleValue() {
     final val = _singleValueController.text.trim();
     if (val.isEmpty) return;
-
     final numVal = double.tryParse(val);
     if (numVal == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Valeur non numérique: "$val"'), backgroundColor: AppColors.error),
+        SnackBar(content: Text('Valeur invalide'), backgroundColor: AppColors.error),
       );
       return;
     }
 
     final data = ref.read(dataProvider);
-    final type = data.type;
     final existing = _textController.text;
 
-    switch (type) {
+    switch (data.type) {
       case DataInputType.simple:
-        final line = existing.isEmpty ? '$numVal' : '$existing\n$numVal';
-        _textController.text = line;
+        _textController.text = existing.isEmpty ? '$numVal' : '$existing\n$numVal';
         break;
       case DataInputType.grouped:
-        final freq = _singleFreqController.text.trim();
-        final freqInt = int.tryParse(freq);
-        if (freqInt == null || freqInt <= 0) {
+        final freq = int.tryParse(_singleFreqController.text.trim());
+        if (freq == null || freq <= 0) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Effectif invalide'), backgroundColor: AppColors.error),
+            SnackBar(content: Text('Effectif invalide'), backgroundColor: AppColors.error),
           );
           return;
         }
-        final line = existing.isEmpty ? '$numVal\t$freqInt' : '$existing\n$numVal\t$freqInt';
-        _textController.text = line;
+        _textController.text = existing.isEmpty ? '$numVal\t$freq' : '$existing\n$numVal\t$freq';
         _singleFreqController.clear();
         break;
       case DataInputType.classes:
-        final upper = _singleFreqController.text.trim();
-        final upperVal = double.tryParse(upper);
-        if (upperVal == null) {
+        final upper = double.tryParse(_singleFreqController.text.trim());
+        if (upper == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Borne supérieure invalide'), backgroundColor: AppColors.error),
+            SnackBar(content: Text('Borne sup. invalide'), backgroundColor: AppColors.error),
           );
           return;
         }
@@ -197,48 +107,81 @@ class _InputScreenState extends ConsumerState<InputScreen> {
         final freqInt = int.tryParse(freqStr);
         if (freqInt == null || freqInt <= 0) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Effectif invalide'), backgroundColor: AppColors.error),
+            SnackBar(content: Text('Effectif invalide'), backgroundColor: AppColors.error),
           );
           return;
         }
-        final nLine = '${existing.isEmpty ? '' : '$existing\n'}$numVal\t$upperVal\t$freqInt';
-        _textController.text = nLine;
+        _textController.text = '${existing.isEmpty ? '' : '$existing\n'}$numVal\t$upper\t$freqInt';
         _singleFreqController.clear();
         _singleFreqClassController.clear();
         break;
       case DataInputType.bivariate:
-        final y = _singleX2Controller.text.trim();
-        final yVal = double.tryParse(y);
-        if (yVal == null) {
+        final y = double.tryParse(_singleX2Controller.text.trim());
+        if (y == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Valeur Y invalide'), backgroundColor: AppColors.error),
+            SnackBar(content: Text('Valeur Y invalide'), backgroundColor: AppColors.error),
           );
           return;
         }
-        final line = existing.isEmpty ? '$numVal\t$yVal' : '$existing\n$numVal\t$yVal';
-        _textController.text = line;
+        _textController.text = existing.isEmpty ? '$numVal\t$y' : '$existing\n$numVal\t$y';
         _singleX2Controller.clear();
         break;
     }
-
     _singleValueController.clear();
-    _parseData(ref.read(languageProvider));
+    _parseData();
   }
 
-  Future<void> _calculate(Locale locale) async {
-    _parseData(locale);
+  void _deleteEntry(int index) {
+    final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    if (index < 0 || index >= lines.length) return;
+    setState(() {
+      lines.removeAt(index);
+      _textController.text = lines.join('\n');
+    });
+    _parseData();
+  }
+
+  void _editEntry(int index) {
+    final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    if (index < 0 || index >= lines.length) return;
+    final editController = TextEditingController(text: lines[index]);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Modifier'),
+        content: TextField(
+          controller: editController,
+          autofocus: true,
+          style: const TextStyle(fontFamily: 'monospace'),
+          decoration: const InputDecoration(border: OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () {
+              lines[index] = editController.text.trim();
+              _textController.text = lines.join('\n');
+              _parseData();
+              Navigator.pop(ctx);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _calculate() async {
+    _parseData();
     final data = ref.read(dataProvider);
     if (data.values.isEmpty && data.xValues.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.tr('msg_no_data_valid', locale))),
+        const SnackBar(content: Text('Saisissez des données valides.')),
       );
       return;
     }
 
     final varName = _nameController.text.trim().isEmpty ? 'Variable' : _nameController.text.trim();
-    final xName = 'X';
-    final yName = 'Y';
-
     ref.read(dataProvider.notifier).setVariableName(varName);
 
     final dataNatureStr = data.dataNature == DataNature.discrete ? 'discrete' : 'continuous';
@@ -262,42 +205,58 @@ class _InputScreenState extends ConsumerState<InputScreen> {
           await notifier.calculateClasses(data.lowerBounds, data.upperBounds, data.frequencies, varName, dataNature: dataNatureStr);
           break;
         case DataInputType.bivariate:
-          await notifier.calculateBivariate(data.xValues, data.yValues, xName, yName, dataNature: dataNatureStr);
+          await notifier.calculateBivariate(data.xValues, data.yValues, 'X', 'Y', dataNature: dataNatureStr);
           break;
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Une erreur est survenue. Réessayez.'), backgroundColor: AppColors.error),
+          const SnackBar(content: Text('Erreur serveur. Réessayez.'), backgroundColor: AppColors.error),
         );
       }
     }
   }
 
-  int _getCount(DataState data) {
-    switch (data.type) {
+  String _getBulkHint() {
+    switch (ref.read(dataProvider).type) {
       case DataInputType.simple:
-        return data.values.length;
+        return 'Ex: 12, 15, 8.5, 20, 17.3';
       case DataInputType.grouped:
-        return data.values.length;
+        return 'Ex: 12\t5\n15\t8\n18\t12';
       case DataInputType.classes:
-        return data.lowerBounds.length;
+        return 'Ex: 10\t20\t5\n20\t30\t8';
       case DataInputType.bivariate:
-        return data.xValues.length;
+        return 'Ex: 10\t25\n15\t30\n20\t35';
     }
   }
 
-  String _getDataPreview(DataState data) {
-    if (!data.hasData) return '';
+  String _getGraphInfo() {
+    final data = ref.read(dataProvider);
+    final isDiscrete = data.dataNature == DataNature.discrete;
+    final locale = ref.read(languageProvider);
     switch (data.type) {
       case DataInputType.simple:
-        return data.values.join(', ');
+        return isDiscrete ? AppStrings.tr('input_graph_simple_discrete', locale) : AppStrings.tr('input_graph_simple_continuous', locale);
       case DataInputType.grouped:
-        return data.values.asMap().entries.map((e) => '${e.value}\t${data.frequencies[e.key]}').join('\n');
+        return AppStrings.tr('input_graph_grouped', locale);
       case DataInputType.classes:
-        return data.lowerBounds.asMap().entries.map((e) => '${e.value}\t${data.upperBounds[e.key]}\t${data.frequencies[e.key]}').join('\n');
+        return AppStrings.tr('input_graph_classes', locale);
       case DataInputType.bivariate:
-        return data.xValues.asMap().entries.map((e) => '${e.value}\t${data.yValues[e.key]}').join('\n');
+        return AppStrings.tr('input_graph_bivariate', locale);
+    }
+  }
+
+  String _getTypeName() {
+    final locale = ref.read(languageProvider);
+    switch (ref.read(dataProvider).type) {
+      case DataInputType.simple:
+        return AppStrings.tr('input_simple', locale);
+      case DataInputType.grouped:
+        return AppStrings.tr('input_grouped', locale);
+      case DataInputType.classes:
+        return AppStrings.tr('input_classes', locale);
+      case DataInputType.bivariate:
+        return AppStrings.tr('input_bivariate', locale);
     }
   }
 
@@ -306,8 +265,6 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     final data = ref.watch(dataProvider);
     final result = ref.watch(resultProvider);
     final locale = ref.watch(languageProvider);
-
-    final count = _getCount(data);
 
     return Column(
       children: [
@@ -321,10 +278,10 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 const SizedBox(height: 8),
                 SegmentedButton<DataInputType>(
                   segments: [
-                    ButtonSegment(value: DataInputType.simple, label: Text('Simple')),
-                    ButtonSegment(value: DataInputType.grouped, label: Text('Groupé')),
-                    ButtonSegment(value: DataInputType.classes, label: Text('Classes [a;b]')),
-                    ButtonSegment(value: DataInputType.bivariate, label: Text('Bivarié (X,Y)')),
+                    ButtonSegment(value: DataInputType.simple, label: Text('Simple'), selectedIcon: const SizedBox.shrink()),
+                    ButtonSegment(value: DataInputType.grouped, label: Text('Groupé'), selectedIcon: const SizedBox.shrink()),
+                    ButtonSegment(value: DataInputType.classes, label: Text('Classes [a;b]'), selectedIcon: const SizedBox.shrink()),
+                    ButtonSegment(value: DataInputType.bivariate, label: Text('Bivarié (X,Y)'), selectedIcon: const SizedBox.shrink()),
                   ],
                   selected: {data.type},
                   onSelectionChanged: (selected) {
@@ -336,6 +293,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                     _singleValueController.clear();
                     _singleFreqController.clear();
                     _singleX2Controller.clear();
+                    _singleFreqClassController.clear();
                   },
                 ),
                 if (data.type != DataInputType.classes) ...[
@@ -344,8 +302,8 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                   const SizedBox(height: 8),
                   SegmentedButton<DataNature>(
                     segments: [
-                      ButtonSegment(value: DataNature.discrete, label: Text('Discret')),
-                      ButtonSegment(value: DataNature.continuous, label: Text('Continu')),
+                      ButtonSegment(value: DataNature.discrete, label: Text('Discret'), selectedIcon: const SizedBox.shrink()),
+                      ButtonSegment(value: DataNature.continuous, label: Text('Continu'), selectedIcon: const SizedBox.shrink()),
                     ],
                     selected: {data.dataNature},
                     onSelectionChanged: (selected) {
@@ -353,6 +311,11 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                     },
                   ),
                 ],
+                if (data.type == DataInputType.classes)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(AppStrings.tr('classes_continuous_hint', locale), style: TextStyle(fontSize: 11, color: AppColors.accent)),
+                  ),
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
@@ -362,10 +325,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: AppColors.accent.withOpacity(0.2)),
                   ),
-                  child: Text(
-                    _graphInfo(locale),
-                    style: TextStyle(fontSize: 12, color: AppColors.accent),
-                  ),
+                  child: Text(_getGraphInfo(), style: TextStyle(fontSize: 12, color: AppColors.accent)),
                 ),
                 const SizedBox(height: 16),
                 Text(AppStrings.tr('input_serie_name', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
@@ -374,8 +334,8 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                   controller: _nameController,
                   style: const TextStyle(fontSize: 14),
                   decoration: InputDecoration(
+                    isDense: true,
                     hintText: 'Ex: Notes des étudiants...',
-                    prefixIcon: Icon(Icons.label_outline, size: 18, color: AppColors.accent),
                     border: const OutlineInputBorder(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
@@ -386,7 +346,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent),
                 ),
                 const SizedBox(height: 8),
-                _buildSingleInputRow(data),
+                _buildSingleInputRow(data, locale),
                 const SizedBox(height: 16),
                 Text(AppStrings.tr('input_bulk', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
                 const SizedBox(height: 8),
@@ -394,9 +354,9 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                   controller: _textController,
                   maxLines: 4,
                   style: const TextStyle(fontSize: 13),
-                  onChanged: (_) => _parseData(locale),
+                  onChanged: (_) => _parseData(),
                   decoration: InputDecoration(
-                    hintText: _bulkHint(),
+                    hintText: _getBulkHint(),
                     hintStyle: TextStyle(color: Color(0xFF666666), fontSize: 12),
                     border: const OutlineInputBorder(),
                     contentPadding: const EdgeInsets.all(12),
@@ -407,51 +367,45 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(12)),
                       child: Text(
-                        '$count ${count > 1 ? AppStrings.tr('input_entries_plural', locale) : AppStrings.tr('input_entries', locale)}',
+                        '${_getCount(data)} ${_getCount(data) > 1 ? AppStrings.tr('input_entries_plural', locale) : AppStrings.tr('input_entries', locale)}',
                         style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(_typeName(), style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
+                    Text(_getTypeName(), style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 8),
-                if (data.hasData)
-                  _buildEntryList(data, locale)
-                else
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardDark,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.borderDark),
-                    ),
-                    child: Text(
-                      AppStrings.tr('input_no_data', locale),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
-                    ),
-                  ),
-                const SizedBox(height: 8),
+                _buildEntryList(data, locale),
+                const SizedBox(height: 16),
                 if (result.error != null)
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    decoration: BoxDecoration(color: AppColors.error.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                     child: Row(
                       children: [
                         const Icon(Icons.error_outline, color: AppColors.error, size: 16),
                         const SizedBox(width: 8),
                         Expanded(child: Text(result.error!, style: TextStyle(color: AppColors.error, fontSize: 12))),
+                      ],
+                    ),
+                  ),
+                if (result.hasResult)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: AppColors.success.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, color: AppColors.success, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(
+                          AppStrings.tr('analysis_empty_hint', locale),
+                          style: TextStyle(color: AppColors.success, fontSize: 12),
+                        )),
                       ],
                     ),
                   ),
@@ -467,7 +421,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
             border: Border(top: BorderSide(color: AppColors.borderDark, width: 0.5)),
           ),
           child: ElevatedButton.icon(
-            onPressed: result.isLoading ? null : () => _calculate(locale),
+            onPressed: result.isLoading ? null : _calculate,
             icon: result.isLoading
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Icon(Icons.bar_chart, size: 20),
@@ -487,7 +441,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     );
   }
 
-  Widget _buildSingleInputRow(DataState data) {
+  Widget _buildSingleInputRow(DataState data, Locale locale) {
     switch (data.type) {
       case DataInputType.simple:
         return Row(
@@ -497,11 +451,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 controller: _singleValueController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: _singleValueHint(),
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'Valeur xi', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
                 onSubmitted: (_) => _addSingleValue(),
               ),
             ),
@@ -517,11 +467,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 controller: _singleValueController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: _singleValueHint(),
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'Valeur xi', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
               ),
             ),
             const SizedBox(width: 8),
@@ -530,11 +476,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 controller: _singleFreqController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: _singleExtraHint(),
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'Effectif n', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
                 onSubmitted: (_) => _addSingleValue(),
               ),
             ),
@@ -550,27 +492,16 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 controller: _singleValueController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Borne inf. (a)',
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'Borne inf. (a)', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(';', style: TextStyle(fontSize: 16, color: AppColors.accent)),
-            ),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Text(';', style: TextStyle(fontSize: 16, color: AppColors.accent))),
             Expanded(
               child: TextField(
                 controller: _singleFreqController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Borne sup. (b)',
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'Borne sup. (b)', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
               ),
             ),
             const SizedBox(width: 8),
@@ -580,11 +511,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 controller: _singleFreqClassController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'ni',
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'ni', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12)),
                 onSubmitted: (_) => _addSingleValue(),
               ),
             ),
@@ -600,11 +527,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 controller: _singleValueController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'X',
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'X', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
               ),
             ),
             const SizedBox(width: 8),
@@ -613,11 +536,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 controller: _singleX2Controller,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Y',
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
+                decoration: const InputDecoration(hintText: 'Y', border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
                 onSubmitted: (_) => _addSingleValue(),
               ),
             ),
@@ -628,118 +547,65 @@ class _InputScreenState extends ConsumerState<InputScreen> {
     }
   }
 
+  Widget _addButton() {
+    return Container(
+      width: 44, height: 44,
+      decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(10)),
+      child: IconButton(icon: const Icon(Icons.add, color: Colors.white, size: 24), onPressed: _addSingleValue),
+    );
+  }
+
+  int _getCount(DataState data) {
+    switch (data.type) {
+      case DataInputType.simple: return data.values.length;
+      case DataInputType.grouped: return data.values.length;
+      case DataInputType.classes: return data.lowerBounds.length;
+      case DataInputType.bivariate: return data.xValues.length;
+    }
+  }
+
   Widget _buildEntryList(DataState data, Locale locale) {
-    final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    final text = _textController.text;
+    final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
     if (lines.isEmpty) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(maxHeight: 150),
+      constraints: const BoxConstraints(maxHeight: 200),
       decoration: BoxDecoration(
         color: AppColors.cardDark,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.borderDark),
       ),
-      child: ListView.builder(
+      child: ListView.separated(
         shrinkWrap: true,
         itemCount: lines.length,
+        separatorBuilder: (_, __) => Divider(height: 1, color: AppColors.borderDark),
         itemBuilder: (context, index) {
           final parts = lines[index].split(RegExp(r'[\t;,]+')).map((s) => s.trim()).toList();
-          final display = parts.join('  |  ');
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.borderDark, width: 0.5)),
-            ),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Row(
               children: [
                 Expanded(
-                  child: Text(display, style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC), fontFamily: 'monospace')),
+                  child: Text(
+                    parts.join('  |  '),
+                    style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC), fontFamily: 'monospace'),
+                  ),
                 ),
-                InkWell(
-                  onTap: () => _showEditDialog(index, lines[index], locale),
+                GestureDetector(
+                  onTap: () => _editEntry(index),
                   child: Icon(Icons.edit, size: 16, color: AppColors.accent),
                 ),
-                const SizedBox(width: 8),
-                InkWell(
-                  onTap: () => _deleteEntry(index, locale),
-                  child: Icon(Icons.close, size: 16, color: AppColors.error),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () => _deleteEntry(index),
+                  child: Icon(Icons.delete_outline, size: 16, color: AppColors.error),
                 ),
               ],
             ),
           );
         },
-      ),
-    );
-  }
-
-  void _deleteEntry(int index, Locale locale) {
-    final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
-    if (index < 0 || index >= lines.length) return;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppStrings.tr('label_data_nature', locale) == 'Nature' ? 'Supprimer ?' : 'Delete?'),
-        content: Text('Supprimer cette entrée ?', style: TextStyle(fontSize: 14)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Annuler')),
-          TextButton(
-            onPressed: () {
-              lines.removeAt(index);
-              _textController.text = lines.join('\n');
-              _parseData(locale);
-              Navigator.pop(ctx);
-            },
-            child: Text('Supprimer', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEditDialog(int index, String line, Locale locale) {
-    final editController = TextEditingController(text: line);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Modifier'),
-        content: TextField(
-          controller: editController,
-          autofocus: true,
-          style: TextStyle(fontFamily: 'monospace'),
-          decoration: InputDecoration(border: const OutlineInputBorder()),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Annuler')),
-          TextButton(
-            onPressed: () {
-              final lines = _textController.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
-              if (index >= 0 && index < lines.length) {
-                lines[index] = editController.text.trim();
-                _textController.text = lines.join('\n');
-                _parseData(locale);
-              }
-              Navigator.pop(ctx);
-            },
-            child: Text('OK', style: TextStyle(color: AppColors.accent)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _addButton() {
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: AppColors.accent,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: IconButton(
-        icon: const Icon(Icons.add, color: Colors.white, size: 24),
-        onPressed: _addSingleValue,
       ),
     );
   }

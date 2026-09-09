@@ -136,195 +136,197 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
   }
 
   Widget _buildLawContent(Map<String, dynamic> currentLaw, ResultState result, Locale locale) {
-    return Column(
-      children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Paramètres — ${currentLaw['name']}',
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 12),
-                ...currentLaw['params'].asMap().entries.map((entry) {
-                  final key = currentLaw['paramKeys'][entry.key];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: TextField(
-                      controller: _controllers['${_selectedLaw}_$key'],
-                      decoration: InputDecoration(
-                        labelText: entry.value,
-                        isDense: true,
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  );
-                }),
-                if (result.hasResult)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.auto_awesome, size: 16, color: AppColors.accent),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Paramètres pré-remplis avec vos données. Vous pouvez les modifier.',
-                              style: TextStyle(fontSize: 12, color: AppColors.accent),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                const Divider(),
-                Text('Calculs', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth < 400) {
-                      return Column(
-                        children: [
-                          TextField(
-                            controller: _xController,
-                            decoration: const InputDecoration(
-                                labelText: 'P(X = x) ou P(X ≤ x)', isDense: true),
-                            keyboardType: TextInputType.number,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _xMinController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'x min', isDense: true),
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextField(
-                                  controller: _xMaxController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'x max', isDense: true),
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    }
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _xController,
-                            decoration: const InputDecoration(
-                                labelText: 'P(X = x) ou P(X ≤ x)', isDense: true),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _xMinController,
-                            decoration: const InputDecoration(
-                                labelText: 'x min', isDense: true),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _xMaxController,
-                            decoration: const InputDecoration(
-                                labelText: 'x max', isDense: true),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _calculate,
-                    icon: const Icon(Icons.calculate),
-                    label: Text(_isLoading ? AppStrings.tr('prob_loading', locale) : AppStrings.tr('prob_calculate', locale)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (_error != null)
-          Card(
-            color: AppColors.error.withOpacity(0.1),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: AppColors.error),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_error!, style: TextStyle(color: AppColors.error))),
-                ],
-              ),
-            ),
-          ),
-        if (_result != null) ...[
-          const SizedBox(height: 12),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Résultats', style: Theme.of(context).textTheme.titleLarge),
+                  Text('${AppStrings.tr('prob_parameters', locale)} — ${currentLaw['name']}',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 12),
+                  ...currentLaw['params'].asMap().entries.map((entry) {
+                    final key = currentLaw['paramKeys'][entry.key];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TextField(
+                        controller: _controllers['${_selectedLaw}_$key'],
+                        decoration: InputDecoration(
+                          labelText: entry.value,
+                          isDense: true,
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    );
+                  }),
+                  if (result.hasResult)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.auto_awesome, size: 16, color: AppColors.accent),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                AppStrings.tr('prob_prefilled_hint', locale),
+                                style: TextStyle(fontSize: 12, color: AppColors.accent),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const Divider(),
+                  Text(AppStrings.tr('prob_calcs', locale), style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      if (_result!['p_equal'] != null)
-                        _resultChip('P(X = x)', _result!['p_equal']),
-                      if (_result!['p_less_equal'] != null)
-                        _resultChip('P(X ≤ x)', _result!['p_less_equal']),
-                      if (_result!['p_interval'] != null)
-                        _resultChip('P(a ≤ X ≤ b)', _result!['p_interval']),
-                      _resultChip('Espérance', _result!['mean']),
-                      _resultChip('Variance', _result!['variance']),
-                      _resultChip('Écart-type', _result!['std_dev']),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth < 400) {
+                        return Column(
+                          children: [
+                            TextField(
+                              controller: _xController,
+                              decoration: const InputDecoration(
+                                  labelText: 'P(X = x) ou P(X ≤ x)', isDense: true),
+                              keyboardType: TextInputType.number,
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _xMinController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'x min', isDense: true),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _xMaxController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'x max', isDense: true),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _xController,
+                              decoration: const InputDecoration(
+                                  labelText: 'P(X = x) ou P(X ≤ x)', isDense: true),
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _xMinController,
+                              decoration: const InputDecoration(
+                                  labelText: 'x min', isDense: true),
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _xMaxController,
+                              decoration: const InputDecoration(
+                                  labelText: 'x max', isDense: true),
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
-                  if (_result!['interpretation'] != null)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(_result!['interpretation']),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _calculate,
+                      icon: const Icon(Icons.calculate),
+                      label: Text(_isLoading ? AppStrings.tr('prob_loading', locale) : AppStrings.tr('prob_calculate', locale)),
                     ),
+                  ),
                 ],
               ),
             ),
           ),
+          if (_error != null)
+            Card(
+              color: AppColors.error.withOpacity(0.1),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.error),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(_error!, style: TextStyle(color: AppColors.error))),
+                  ],
+                ),
+              ),
+            ),
+          if (_result != null) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(AppStrings.tr('prob_results', locale), style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        if (_result!['p_equal'] != null)
+                          _resultChip('P(X = x)', _result!['p_equal']),
+                        if (_result!['p_less_equal'] != null)
+                          _resultChip('P(X ≤ x)', _result!['p_less_equal']),
+                        if (_result!['p_interval'] != null)
+                          _resultChip('P(a ≤ X ≤ b)', _result!['p_interval']),
+                        _resultChip(AppStrings.tr('label_mean', locale), _result!['mean']),
+                        _resultChip(AppStrings.tr('label_variance', locale), _result!['variance']),
+                        _resultChip(AppStrings.tr('label_std_dev', locale), _result!['std_dev']),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (_result!['interpretation'] != null)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(_result!['interpretation']),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 
@@ -387,12 +389,12 @@ class _ProbabilityScreenState extends ConsumerState<ProbabilityScreen> {
                         children: [
                           Icon(Icons.functions, size: 64, color: Color(0xFF666666)),
                           const SizedBox(height: 12),
-                          Text(
-                            ref.read(dataProvider).hasData
-                                ? 'Sélectionnez une loi'
-                                : 'Saisissez des données d\'abord',
-                            style: TextStyle(color: Color(0xFF999999)),
-                          ),
+                      Text(
+                        ref.read(dataProvider).hasData
+                            ? AppStrings.tr('prob_select_law', locale)
+                            : AppStrings.tr('charts_no_data_hint', locale),
+                        style: TextStyle(color: Color(0xFF999999)),
+                      ),
                         ],
                       ),
                     ),

@@ -20,23 +20,23 @@ class LessonsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Leçons', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 8),
-          Text('9 chapitres pédagogiques', style: TextStyle(color: Color(0xFF999999))),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _lessons.length,
-              itemBuilder: (context, index) {
-                final lesson = _lessons[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: InkWell(
-                    onTap: () => _showLessonDetail(context, lesson, locale),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
+                Text(AppStrings.tr('nav_lessons', locale), style: Theme.of(context).textTheme.headlineMedium),
+                const SizedBox(height: 8),
+                Text(AppStrings.tr('lessons_subtitle', locale), style: TextStyle(color: Color(0xFF999999))),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _lessons.length,
+                    itemBuilder: (context, index) {
+                      final lesson = _lessons[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: InkWell(
+                          onTap: () => _showLessonDetail(context, lesson, locale),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
                         children: [
                           Container(
                             width: 40,
@@ -113,11 +113,11 @@ class LessonsScreen extends ConsumerWidget {
               Text(lesson['title_$lang'] ?? lesson['title_fr'],
                   style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 24),
-              _buildSection('Définition', lesson['definition_$lang'] ?? lesson['definition_fr']),
-              _buildSection('Formule', lesson['formula'] ?? '', isFormula: true),
-              _buildSection('Interprétation', lesson['interpretation_$lang'] ?? lesson['interpretation_fr']),
-              _buildSection('Remarque', lesson['remark_$lang'] ?? lesson['remark_fr']),
-              _buildSection('Exemple', lesson['example_$lang'] ?? lesson['example_fr']),
+              _buildSection(AppStrings.tr('lessons_definition', locale), lesson['definition_$lang'] ?? lesson['definition_fr']),
+              _buildSection(AppStrings.tr('lessons_formula', locale), lesson['formula'] ?? '', isFormula: true),
+              _buildSection(AppStrings.tr('lessons_interpretation', locale), lesson['interpretation_$lang'] ?? lesson['interpretation_fr']),
+              _buildSection(AppStrings.tr('lessons_remark', locale), lesson['remark_$lang'] ?? lesson['remark_fr']),
+              _buildSection(AppStrings.tr('lessons_example', locale), lesson['example_$lang'] ?? lesson['example_fr']),
             ],
           ),
         ),

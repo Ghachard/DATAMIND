@@ -83,8 +83,8 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
           const SizedBox(height: 12),
           Text(
             ref.read(dataProvider).hasData
-                ? 'Sélectionnez un type de graphique'
-                : 'Saisissez des données d\'abord',
+                ? AppStrings.tr('charts_select_type', locale)
+                : AppStrings.tr('charts_no_data_hint', locale),
             style: TextStyle(color: Color(0xFF999999)),
           ),
         ],
@@ -158,7 +158,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Type : $dataTypeStr  |  Nature : ${dataNatureStr == 'discrete' ? AppStrings.tr('label_data_nature', locale) : AppStrings.tr('label_data_nature', locale)}',
+            '${AppStrings.tr('charts_type_label', locale)} : $dataTypeStr  |  ${AppStrings.tr('charts_nature_label', locale)} : ${dataNatureStr == 'discrete' ? AppStrings.tr('label_discrete', locale) : AppStrings.tr('label_continuous', locale)}',
             style: TextStyle(color: Color(0xFF999999)),
           ),
           const SizedBox(height: 16),
