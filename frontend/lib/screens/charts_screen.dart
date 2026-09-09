@@ -76,6 +76,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
 
   Widget _buildChart() {
     if (_chartData == null) {
+      final locale = ref.read(languageProvider);
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [

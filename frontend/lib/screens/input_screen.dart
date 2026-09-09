@@ -277,11 +277,12 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                 Text(AppStrings.tr('label_data_type', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
                 const SizedBox(height: 8),
                 SegmentedButton<DataInputType>(
+                  showSelectedIcon: false,
                   segments: [
-                    ButtonSegment(value: DataInputType.simple, label: Text('Simple'), selectedIcon: const SizedBox.shrink()),
-                    ButtonSegment(value: DataInputType.grouped, label: Text('Groupé'), selectedIcon: const SizedBox.shrink()),
-                    ButtonSegment(value: DataInputType.classes, label: Text('Classes [a;b]'), selectedIcon: const SizedBox.shrink()),
-                    ButtonSegment(value: DataInputType.bivariate, label: Text('Bivarié (X,Y)'), selectedIcon: const SizedBox.shrink()),
+                    ButtonSegment(value: DataInputType.simple, label: Text('Simple')),
+                    ButtonSegment(value: DataInputType.grouped, label: Text('Groupé')),
+                    ButtonSegment(value: DataInputType.classes, label: Text('Classes [a;b]')),
+                    ButtonSegment(value: DataInputType.bivariate, label: Text('Bivarié (X,Y)')),
                   ],
                   selected: {data.type},
                   onSelectionChanged: (selected) {
@@ -301,9 +302,10 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                   Text(AppStrings.tr('label_data_nature', locale), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent)),
                   const SizedBox(height: 8),
                   SegmentedButton<DataNature>(
+                    showSelectedIcon: false,
                     segments: [
-                      ButtonSegment(value: DataNature.discrete, label: Text('Discret'), selectedIcon: const SizedBox.shrink()),
-                      ButtonSegment(value: DataNature.continuous, label: Text('Continu'), selectedIcon: const SizedBox.shrink()),
+                      ButtonSegment(value: DataNature.discrete, label: Text('Discret')),
+                      ButtonSegment(value: DataNature.continuous, label: Text('Continu')),
                     ],
                     selected: {data.dataNature},
                     onSelectionChanged: (selected) {

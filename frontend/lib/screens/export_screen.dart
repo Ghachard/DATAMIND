@@ -106,111 +106,114 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-          Text(AppStrings.tr('export_title', locale), style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 8),
-          Text(AppStrings.tr('export_subtitle', locale), style: TextStyle(color: Color(0xFF999999))),
-          const SizedBox(height: 24),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(AppStrings.tr('export_sections', locale), style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 16),
-                  SwitchListTile(
-                    title: Text(AppStrings.tr('export_stats', locale)),
-                    subtitle: Text(AppStrings.tr('export_stats_desc', locale)),
-                    value: _includeStats,
-                    onChanged: (v) => setState(() => _includeStats = v),
-                    activeColor: AppColors.primary,
+                Text(AppStrings.tr('export_title', locale), style: Theme.of(context).textTheme.headlineMedium),
+                const SizedBox(height: 8),
+                Text(AppStrings.tr('export_subtitle', locale), style: TextStyle(color: Color(0xFF999999))),
+                const SizedBox(height: 24),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(AppStrings.tr('export_sections', locale), style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 16),
+                        SwitchListTile(
+                          title: Text(AppStrings.tr('export_stats', locale)),
+                          subtitle: Text(AppStrings.tr('export_stats_desc', locale)),
+                          value: _includeStats,
+                          onChanged: (v) => setState(() => _includeStats = v),
+                          activeColor: AppColors.primary,
+                        ),
+                        SwitchListTile(
+                          title: Text(AppStrings.tr('export_charts', locale)),
+                          subtitle: Text(AppStrings.tr('export_charts_desc', locale)),
+                          value: _includeCharts,
+                          onChanged: (v) => setState(() => _includeCharts = v),
+                          activeColor: AppColors.primary,
+                        ),
+                        SwitchListTile(
+                          title: Text(AppStrings.tr('export_interp', locale)),
+                          subtitle: Text(AppStrings.tr('export_interp_desc', locale)),
+                          value: _includeInterpretation,
+                          onChanged: (v) => setState(() => _includeInterpretation = v),
+                          activeColor: AppColors.primary,
+                        ),
+                      ],
+                    ),
                   ),
-                  SwitchListTile(
-                    title: Text(AppStrings.tr('export_charts', locale)),
-                    subtitle: Text(AppStrings.tr('export_charts_desc', locale)),
-                    value: _includeCharts,
-                    onChanged: (v) => setState(() => _includeCharts = v),
-                    activeColor: AppColors.primary,
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline, color: AppColors.accent, size: 20),
+                            const SizedBox(width: 8),
+                            Text(AppStrings.tr('export_current_data', locale), style: Theme.of(context).textTheme.titleMedium),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _infoRow(AppStrings.tr('charts_type_label', locale), data.type.name),
+                        _infoRow(AppStrings.tr('nav_variable', locale), data.variableName),
+                        _infoRow(AppStrings.tr('label_n', locale), '${_getCount(data)}'),
+                      ],
+                    ),
                   ),
-                  SwitchListTile(
-                    title: Text(AppStrings.tr('export_interp', locale)),
-                    subtitle: Text(AppStrings.tr('export_interp_desc', locale)),
-                    value: _includeInterpretation,
-                    onChanged: (v) => setState(() => _includeInterpretation = v),
-                    activeColor: AppColors.primary,
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: (_isLoading || !data.hasData) ? null : _exportPdf,
+                    icon: _isLoading
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.picture_as_pdf),
+                    label: Text(_isLoading ? AppStrings.tr('export_generating', locale) : AppStrings.tr('export_generate', locale)),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.info_outline, color: AppColors.accent, size: 20),
-                      const SizedBox(width: 8),
-                      Text(AppStrings.tr('export_current_data', locale), style: Theme.of(context).textTheme.titleMedium),
-                    ],
-                  ),
+                ),
+                if (_error != null) ...[
                   const SizedBox(height: 12),
-                  _infoRow(AppStrings.tr('charts_type_label', locale), data.type.name),
-                  _infoRow(AppStrings.tr('nav_variable', locale), data.variableName),
-                  _infoRow(AppStrings.tr('label_n', locale), '${_getCount(data)}'),
+                  Card(
+                    color: AppColors.error.withOpacity(0.1),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: AppColors.error),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(_error!, style: TextStyle(color: AppColors.error))),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
-              ),
+                if (_success != null) ...[
+                  const SizedBox(height: 12),
+                  Card(
+                    color: AppColors.success.withOpacity(0.1),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle_outline, color: AppColors.success),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(_success!)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: (_isLoading || !data.hasData) ? null : _exportPdf,
-              icon: _isLoading
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.picture_as_pdf),
-              label: Text(_isLoading ? AppStrings.tr('export_generating', locale) : AppStrings.tr('export_generate', locale)),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 12),
-            Card(
-              color: AppColors.error.withOpacity(0.1),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: AppColors.error),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(_error!, style: TextStyle(color: AppColors.error))),
-                  ],
-                ),
-              ),
-            ),
-          ],
-          if (_success != null) ...[
-            const SizedBox(height: 12),
-            Card(
-              color: AppColors.success.withOpacity(0.1),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle_outline, color: AppColors.success),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(_success!)),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     );
