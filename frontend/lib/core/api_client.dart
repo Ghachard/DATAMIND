@@ -45,9 +45,16 @@ class ApiClient {
         data: data,
         options: Options(responseType: ResponseType.bytes),
       );
-      return response.data;
+      if (response.data is List) {
+        return List<int>.from(response.data);
+      }
+      throw Exception('Réponse invalide du serveur');
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['detail'] ?? e.message);
+      final detail = e.response?.data;
+      if (detail is Map) {
+        throw Exception(detail['detail'] ?? 'Erreur serveur');
+      }
+      throw Exception(e.message ?? 'Erreur réseau');
     }
   }
 

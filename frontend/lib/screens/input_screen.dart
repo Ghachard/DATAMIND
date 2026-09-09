@@ -208,6 +208,9 @@ class _InputScreenState extends ConsumerState<InputScreen> {
           await notifier.calculateBivariate(data.xValues, data.yValues, 'X', 'Y', dataNature: dataNatureStr);
           break;
       }
+      if (mounted) {
+        ref.read(currentSectionProvider.notifier).state = 1;
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -167,7 +167,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     ).toList();
 
     final statLabels = {
-      'n': '${AppStrings.tr('label_n', locale)} (n)',
+      'n': AppStrings.tr('label_n', locale),
       'mean': AppStrings.tr('label_mean', locale),
       'median': AppStrings.tr('label_median', locale),
       'mode': AppStrings.tr('label_mode', locale),
@@ -179,17 +179,17 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       'range': AppStrings.tr('label_range', locale),
       'sum': AppStrings.tr('label_sum', locale),
       'q1': AppStrings.tr('label_q1', locale),
-      'q2': '${AppStrings.tr('label_q2', locale)} (${AppStrings.tr('label_median', locale)})',
+      'q2': AppStrings.tr('label_q2', locale),
       'q3': AppStrings.tr('label_q3', locale),
       'iqr': AppStrings.tr('label_iqr', locale),
-      'skewness': 'Skewness',
-      'kurtosis': 'Kurtosis',
-      'sem': 'SEM',
-      'pearson_r': 'r de Pearson',
-      'r_squared': 'R²',
-      'covariance': 'Covariance',
-      'regression_slope': 'Pente (a)',
-      'regression_intercept': 'Ordonnée (b)',
+      'skewness': AppStrings.tr('label_skewness', locale),
+      'kurtosis': AppStrings.tr('label_kurtosis', locale),
+      'sem': AppStrings.tr('label_sem', locale),
+      'pearson_r': AppStrings.tr('label_pearson_r', locale),
+      'r_squared': AppStrings.tr('label_r_squared', locale),
+      'covariance': AppStrings.tr('label_covariance', locale),
+      'regression_slope': AppStrings.tr('label_regression_slope', locale),
+      'regression_intercept': AppStrings.tr('label_regression_intercept', locale),
     };
 
     return SingleChildScrollView(

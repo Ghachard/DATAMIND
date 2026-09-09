@@ -18,8 +18,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
-
   static const _destinations = [
     (icon: Icons.table_chart_outlined, selIcon: Icons.table_chart, label: 'nav_input'),
     (icon: Icons.bar_chart_outlined, selIcon: Icons.bar_chart, label: 'nav_analysis'),
@@ -45,6 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isDark = themeMode == ThemeMode.dark;
     final screenWidth = MediaQuery.of(context).size.width;
     final isCompact = screenWidth < 600;
+    final selectedIndex = ref.watch(currentSectionProvider);
 
     return Scaffold(
       body: Column(
@@ -71,12 +70,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         for (int i = 0; i < _destinations.length; i++) ...[
                           _NavButton(
                             index: i,
-                            selectedIndex: _selectedIndex,
+                            selectedIndex: selectedIndex,
                             icon: _destinations[i].icon,
                             selectedIcon: _destinations[i].selIcon,
                             label: AppStrings.tr(_destinations[i].label, locale),
                             isCompact: isCompact,
-                            onTap: () => setState(() => _selectedIndex = i),
+                            onTap: () => ref.read(currentSectionProvider.notifier).state = i,
                           ),
                           const SizedBox(width: 2),
                         ],
@@ -98,7 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
           ),
-          Expanded(child: _screens[_selectedIndex]),
+          Expanded(child: _screens[selectedIndex]),
         ],
       ),
     );

@@ -46,9 +46,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         DataInputType.bivariate => 'bivariate',
       };
 
+      final dataNatureStr = data.dataNature == DataNature.discrete ? 'discrete' : 'continuous';
+
       final requestData = <String, dynamic>{
         'data_type': dataTypeStr,
         'variable_name': data.variableName,
+        'data_nature': dataNatureStr,
         'include_descriptive': _includeStats,
         'include_charts': _includeCharts,
         'include_interpretation': _includeInterpretation,
@@ -71,6 +74,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       }
 
       final pdfBytes = await api.exportPdf(requestData);
+
+      if (pdfBytes.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _error = 'PDF vide';
+        });
+        return;
+      }
 
       final directory = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().toString().replaceAll(RegExp(r'[:.]'), '-').substring(0, 19);
