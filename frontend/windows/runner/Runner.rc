@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "ispm.datamind" "\0"
-            VALUE "FileDescription", "datamind_temp" "\0"
+            VALUE "CompanyName", "ISPM" "\0"
+            VALUE "FileDescription", "DataMind - Application pedagogique d'analyse statistique" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "datamind_temp" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 ispm.datamind. All rights reserved." "\0"
-            VALUE "OriginalFilename", "datamind_temp.exe" "\0"
-            VALUE "ProductName", "datamind_temp" "\0"
+            VALUE "InternalName", "datamind" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 ISPM DataMind. All rights reserved." "\0"
+            VALUE "OriginalFilename", "datamind.exe" "\0"
+            VALUE "ProductName", "DataMind" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
