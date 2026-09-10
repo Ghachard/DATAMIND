@@ -1,0 +1,36 @@
+name: Build Windows Desktop
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Install dependencies
+        run: cd frontend && flutter pub get
+
+      - name: Generate app icons
+        run: cd frontend && dart run flutter_launcher_icons
+
+      - name: Build Windows
+        run: cd frontend && flutter build windows --release --dart-define=API_BASE_URL=https://datamind-api-yl0t.onrender.com
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: datamind-windows
+          path: frontend/build/windows/x64/runner/Release/
