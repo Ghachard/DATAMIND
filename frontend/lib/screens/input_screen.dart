@@ -425,21 +425,51 @@ class _InputScreenState extends ConsumerState<InputScreen> {
             color: Theme.of(context).colorScheme.surface,
             border: Border(top: BorderSide(color: AppColors.borderDark, width: 0.5)),
           ),
-          child: ElevatedButton.icon(
-            onPressed: result.isLoading ? null : _calculate,
-            icon: result.isLoading
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : const Icon(Icons.bar_chart, size: 20),
-            label: Text(
-              result.isLoading ? AppStrings.tr('loading', locale) : AppStrings.tr('input_analyser', locale),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.accent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
+          child: Column(
+            children: [
+              if (data.hasData)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _textController.clear();
+                        _singleValueController.clear();
+                        _singleFreqController.clear();
+                        _singleX2Controller.clear();
+                        _singleFreqClassController.clear();
+                      });
+                      ref.read(dataProvider.notifier).clear();
+                      ref.read(resultProvider.notifier).clear();
+                    },
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: Text(AppStrings.tr('input_new_analysis', locale)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: BorderSide(color: AppColors.error.withOpacity(0.5)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              if (data.hasData) const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: result.isLoading ? null : _calculate,
+                icon: result.isLoading
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.bar_chart, size: 20),
+                label: Text(
+                  result.isLoading ? AppStrings.tr('loading', locale) : AppStrings.tr('input_analyser', locale),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
           ),
         ),
       ],
