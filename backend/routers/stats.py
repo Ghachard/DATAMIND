@@ -7,7 +7,8 @@ from services.descriptive import (
     calculate_descriptive_classes, calculate_bivariate
 )
 from services.interpretation import generate_full_interpretation
-from db.database import get_db, save_analysis, get_recent_analyses
+from db.database import get_db, save_analysis, get_recent_analyses, AnalysisHistory
+import json
 from uuid import uuid4
 
 router = APIRouter(prefix="/api/stats", tags=["Statistiques"])
@@ -143,3 +144,28 @@ def get_history():
         }
     except Exception:
         return {"history": []}
+
+
+@router.get("/history/{item_id}")
+def get_history_item(item_id: str):
+    try:
+        db = next(get_db())
+        item = db.query(AnalysisHistory).filter(AnalysisHistory.id == item_id).first()
+        db.close()
+        if not item:
+            return {"error": "Not found"}
+        return {
+            "id": item.id,
+            "data_type": item.data_type,
+            "variable_name": item.variable_name,
+            "created_at": item.created_at.isoformat(),
+            "values": json.loads(item.values_json) if item.values_json else [],
+            "frequencies": json.loads(item.frequencies_json) if item.frequencies_json else None,
+            "lower_bounds": json.loads(item.lower_bounds_json) if item.lower_bounds_json else None,
+            "upper_bounds": json.loads(item.upper_bounds_json) if item.upper_bounds_json else None,
+            "x": json.loads(item.x_json) if item.x_json else None,
+            "y": json.loads(item.y_json) if item.y_json else None,
+            "result_summary": item.result_summary
+        }
+    except Exception:
+        return {"error": "Erreur chargement"}

@@ -196,6 +196,10 @@ class ApiClient {
   Future<Map<String, dynamic>> getHistory() {
     return get('/api/stats/history');
   }
+
+  Future<Map<String, dynamic>> getHistoryItem(String id) {
+    return get('/api/stats/history/$id');
+  }
 }
 
 final apiClientProvider = Provider<ApiClient>((ref) {

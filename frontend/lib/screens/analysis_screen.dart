@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 import '../core/theme.dart';
 import '../core/api_client.dart';
 import '../providers/data_provider.dart';
@@ -35,6 +36,65 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       });
     } catch (e) {
       setState(() => _historyError = 'Erreur chargement historique');
+    }
+  }
+
+  Future<void> _loadHistoryItem(String id) async {
+    try {
+      final api = ref.read(apiClientProvider);
+      final item = await api.getHistoryItem(id);
+
+      final dataNotifier = ref.read(dataProvider.notifier);
+      final resultNotifier = ref.read(resultProvider.notifier);
+
+      final dataTypeStr = item['data_type'] as String? ?? 'simple';
+      final type = DataInputType.values.firstWhere(
+        (t) => t.name == dataTypeStr,
+        orElse: () => DataInputType.simple,
+      );
+
+      dataNotifier.setType(type);
+      dataNotifier.setVariableName(item['variable_name'] ?? 'Variable');
+
+      switch (type) {
+        case DataInputType.simple:
+          final vals = (item['values'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? [];
+          dataNotifier.setValues(vals);
+          break;
+        case DataInputType.grouped:
+          final vals = (item['values'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? [];
+          final freqs = (item['frequencies'] as List?)?.map((e) => (e as num).toInt()).toList() ?? [];
+          dataNotifier.setValues(vals);
+          dataNotifier.setFrequencies(freqs);
+          break;
+        case DataInputType.classes:
+          final lb = (item['lower_bounds'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? [];
+          final ub = (item['upper_bounds'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? [];
+          final freqs = (item['frequencies'] as List?)?.map((e) => (e as num).toInt()).toList() ?? [];
+          dataNotifier.setClassData(lb, ub, freqs);
+          break;
+        case DataInputType.bivariate:
+          final xVals = (item['x'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? [];
+          final yVals = (item['y'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? [];
+          dataNotifier.setBivariateData(xVals, yVals);
+          break;
+      }
+
+      final summary = item['result_summary'];
+      if (summary != null) {
+        final summaryMap = summary is String
+            ? Map<String, dynamic>.from(jsonDecode(summary) as Map)
+            : Map<String, dynamic>.from(summary as Map);
+        resultNotifier.loadFromHistory(summaryMap);
+      }
+
+      ref.read(currentSectionProvider.notifier).state = 0;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur chargement'), backgroundColor: AppColors.error),
+        );
+      }
     }
   }
 
@@ -156,7 +216,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                               return Card(
                                 margin: const EdgeInsets.only(right: 8),
                                 child: InkWell(
-                                  onTap: () {},
+                                  onTap: () => _loadHistoryItem(item['id']),
                                   borderRadius: BorderRadius.circular(12),
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),

@@ -102,6 +102,13 @@ class ResultNotifier extends StateNotifier<ResultState> {
   }
 
   void clear() => state = ResultState();
+
+  void loadFromHistory(Map<String, dynamic> summary) {
+    state = ResultState(
+      stats: summary,
+      interpretation: summary['interpretation'] as String?,
+    );
+  }
 }
 
 final resultProvider = StateNotifierProvider<ResultNotifier, ResultState>((ref) {
