@@ -448,13 +448,13 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                       ref.read(dataProvider.notifier).clear();
                       ref.read(resultProvider.notifier).clear();
                     },
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: Text(AppStrings.tr('input_new_analysis', locale)),
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: Text(AppStrings.tr('input_new_analysis', locale), style: TextStyle(fontSize: 13)),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      side: BorderSide(color: AppColors.error.withOpacity(0.5)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      foregroundColor: Color(0xFF999999),
+                      side: BorderSide(color: Color(0xFF444444)),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ),

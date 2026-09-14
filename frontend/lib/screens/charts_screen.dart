@@ -27,8 +27,8 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
   final List<Map<String, dynamic>> _chartTypes = [
     {'id': 'histogram', 'name': 'Histogramme', 'icon': Icons.bar_chart, 'types': ['simple'], 'natures': ['continuous']},
     {'id': 'boxplot', 'name': 'Boîte à moustaches', 'icon': Icons.linear_scale, 'types': ['simple'], 'natures': ['continuous']},
-    {'id': 'bar', 'name': 'Barres', 'icon': Icons.bar_chart, 'types': ['simple', 'grouped'], 'natures': ['discrete', 'continuous']},
-    {'id': 'pie', 'name': 'Camembert', 'icon': Icons.pie_chart, 'types': ['simple', 'grouped'], 'natures': ['discrete', 'continuous']},
+    {'id': 'bar', 'name': 'Barres', 'icon': Icons.bar_chart, 'types': ['simple', 'grouped'], 'natures': ['discrete']},
+    {'id': 'pie', 'name': 'Camembert', 'icon': Icons.pie_chart, 'types': ['simple', 'grouped'], 'natures': ['discrete']},
     {'id': 'scatter', 'name': 'Nuage de points', 'icon': Icons.scatter_plot, 'types': ['bivariate'], 'natures': ['discrete', 'continuous']},
     {'id': 'histogram_classes', 'name': 'Histogramme jointif', 'icon': Icons.equalizer, 'types': ['classes'], 'natures': ['continuous']},
     {'id': 'ogive', 'name': 'Ogive', 'icon': Icons.trending_up, 'types': ['classes'], 'natures': ['continuous']},
