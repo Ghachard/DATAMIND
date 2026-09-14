@@ -139,6 +139,9 @@ class _InputScreenState extends ConsumerState<InputScreen> {
       _textController.text = lines.join('\n');
     });
     _parseData();
+    if (ref.read(dataProvider).hasData) {
+      _calculate();
+    }
   }
 
   void _editEntry(int index) {
@@ -163,6 +166,9 @@ class _InputScreenState extends ConsumerState<InputScreen> {
               _textController.text = lines.join('\n');
               _parseData();
               Navigator.pop(ctx);
+              if (ref.read(dataProvider).hasData) {
+                _calculate();
+              }
             },
             child: const Text('OK'),
           ),

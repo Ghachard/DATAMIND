@@ -100,6 +100,27 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                             Text('$typeName · $natureName', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
                             const SizedBox(width: 12),
                             Text('${_getCount(data)} ${AppStrings.tr('input_entries', locale)}', style: TextStyle(color: Color(0xFF999999), fontSize: 12)),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                ref.read(currentSectionProvider.notifier).state = 0;
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accent.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.edit, size: 12, color: AppColors.accent),
+                                    const SizedBox(width: 4),
+                                    Text(AppStrings.tr('input_modify', locale), style: TextStyle(fontSize: 11, color: AppColors.accent)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
