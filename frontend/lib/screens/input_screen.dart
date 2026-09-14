@@ -20,6 +20,8 @@ class _InputScreenState extends ConsumerState<InputScreen> {
   final _singleX2Controller = TextEditingController();
   final _singleFreqClassController = TextEditingController();
 
+  bool _hasModifiedAfterAnalysis = false;
+
   @override
   void dispose() {
     _textController.dispose();
@@ -139,8 +141,10 @@ class _InputScreenState extends ConsumerState<InputScreen> {
       _textController.text = lines.join('\n');
     });
     _parseData();
-    if (ref.read(dataProvider).hasData) {
-      _calculate();
+    final result = ref.read(resultProvider);
+    if (result.hasResult) {
+      _hasModifiedAfterAnalysis = true;
+      setState(() {});
     }
   }
 
@@ -166,8 +170,10 @@ class _InputScreenState extends ConsumerState<InputScreen> {
               _textController.text = lines.join('\n');
               _parseData();
               Navigator.pop(ctx);
-              if (ref.read(dataProvider).hasData) {
-                _calculate();
+              final result = ref.read(resultProvider);
+              if (result.hasResult) {
+                _hasModifiedAfterAnalysis = true;
+                setState(() {});
               }
             },
             child: const Text('OK'),
@@ -214,6 +220,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
           await notifier.calculateBivariate(data.xValues, data.yValues, 'X', 'Y', dataNature: dataNatureStr);
           break;
       }
+      _hasModifiedAfterAnalysis = false;
       if (mounted) {
         ref.read(currentSectionProvider.notifier).state = 1;
       }
@@ -433,7 +440,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
           ),
           child: Column(
             children: [
-              if (data.hasData)
+              if (_hasModifiedAfterAnalysis)
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -444,6 +451,7 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                         _singleFreqController.clear();
                         _singleX2Controller.clear();
                         _singleFreqClassController.clear();
+                        _hasModifiedAfterAnalysis = false;
                       });
                       ref.read(dataProvider.notifier).clear();
                       ref.read(resultProvider.notifier).clear();
@@ -458,21 +466,24 @@ class _InputScreenState extends ConsumerState<InputScreen> {
                     ),
                   ),
                 ),
-              if (data.hasData) const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: result.isLoading ? null : _calculate,
-                icon: result.isLoading
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.bar_chart, size: 20),
-                label: Text(
-                  result.isLoading ? AppStrings.tr('loading', locale) : AppStrings.tr('input_analyser', locale),
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              if (_hasModifiedAfterAnalysis) const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: result.isLoading ? null : _calculate,
+                  icon: result.isLoading
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.bar_chart, size: 20),
+                  label: Text(
+                    result.isLoading ? AppStrings.tr('loading', locale) : AppStrings.tr('input_analyser', locale),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 52),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
               ),
             ],
