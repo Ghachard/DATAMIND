@@ -21,6 +21,45 @@ class _InputScreenState extends ConsumerState<InputScreen> {
   final _singleFreqClassController = TextEditingController();
 
   bool _hasModifiedAfterAnalysis = false;
+  bool _syncedFromProvider = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_syncedFromProvider) {
+      _syncedFromProvider = true;
+      final data = ref.read(dataProvider);
+      if (data.hasData && _textController.text.isEmpty) {
+        _textController.text = _rebuildTextFromData(data);
+        _nameController.text = data.variableName;
+      }
+    }
+  }
+
+  String _rebuildTextFromData(DataState data) {
+    switch (data.type) {
+      case DataInputType.simple:
+        return data.values.map((v) => '$v').join('\n');
+      case DataInputType.grouped:
+        final lines = <String>[];
+        for (var i = 0; i < data.values.length; i++) {
+          lines.add('${data.values[i]}\t${data.frequencies[i]}');
+        }
+        return lines.join('\n');
+      case DataInputType.classes:
+        final lines = <String>[];
+        for (var i = 0; i < data.lowerBounds.length; i++) {
+          lines.add('${data.lowerBounds[i]}\t${data.upperBounds[i]}\t${data.frequencies[i]}');
+        }
+        return lines.join('\n');
+      case DataInputType.bivariate:
+        final lines = <String>[];
+        for (var i = 0; i < data.xValues.length; i++) {
+          lines.add('${data.xValues[i]}\t${data.yValues[i]}');
+        }
+        return lines.join('\n');
+    }
+  }
 
   @override
   void dispose() {
